@@ -1,42 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyLineSignature, replyToLine } from "../../../../lib/line";
-import { extractJobInfo, JobState } from "../../../../lib/extractInfo";
+import crypto from "crypto";
 
-const jobStateByUser = new Map<string, JobState>();
+export function verifyLineSignature(body: string, signature: string | null): boolean {
+  if (!signature) return false;
+  const secret = process.env.LINE_CHANNEL_SECRET ?? "";
+  const hash = crypto.createHmac("sha256", secret).update(body).digest("base64");
+  return hash === signature;
+}
 
-export async function POST(req: NextRequest) {
-  const rawBody = await req.text();
-  const signature = req.headers.get("x-line-signature");
+export async function replyToLine(replyToken: string, text: string) {
+  const res = await fetch("https://api.line.me/v2/bot/message/reply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      replyToken,
+      messages: [{ type: "text", text }],
+    }),
+  });
 
-  if (!verifyLineSignature(rawBody, signature)) {
-    return NextResponse.json({ error: "invalid signature" }, { status: 401 });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("LINE reply failed:", err);
   }
-
-  const body = JSON.parse(rawBody);
-
-  for (const event of body.events ?? []) {
-    if (event.type !== "message" || event.message.type !== "text") continue;
-
-    const userId = event.source.userId;
-    const userMessage = event.message.text;
-
-    const previousState = jobStateByUser.get(userId);
-    const extracted = await extractJobInfo(userMessage, previousState);
-
-    jobStateByUser.set(userId, {
-      name: extracted.name,
-      phone: extracted.phone,
-      address: extracted.address,
-      workType: extracted.workType,
-      urgency: extracted.urgency,
-    });
-
-    if (extracted.missingFields.length === 0) {
-      console.log("案件登録可能:", extracted);
-    }
-
-    await replyToLine(event.replyToken, extracted.replyMessage);
-  }
-
-  return NextResponse.json({ ok: true });
 }
