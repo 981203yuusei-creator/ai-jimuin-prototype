@@ -58,10 +58,6 @@ const EMPTY_STATE: JobState = {
   urgency: "normal",
 };
 
-/**
- * 既にわかっている情報(state)と最新メッセージから、
- * 更新後の案件情報を返す。
- */
 export async function extractJobInfo(
   message: string,
   previousState: JobState = EMPTY_STATE
