@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyLineSignature, replyToLine } from "@/lib/line";
-import { extractJobInfo } from "@/lib/extractInfo";
+import { verifyLineSignature, replyToLine } from "../../../../lib/line";
+import { extractJobInfo } from "../../../../lib/extractInfo";
 
 const jobDraftsByUser = new Map<string, Record<string, unknown>>();
 
