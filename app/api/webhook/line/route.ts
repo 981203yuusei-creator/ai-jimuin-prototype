@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyLineSignature, replyToLine } from "../../../../lib/line";
-import { extractJobInfo } from "../../../../lib/extractInfo";
+import { verifyLineSignature, replyToLine } from "../../../lib/line";
+import { extractJobInfo, JobState } from "../../../lib/extractInfo";
 
-const jobDraftsByUser = new Map<string, Record<string, unknown>>();
+const jobStateByUser = new Map<string, JobState>();
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -20,11 +20,16 @@ export async function POST(req: NextRequest) {
     const userId = event.source.userId;
     const userMessage = event.message.text;
 
-    const previous = jobDraftsByUser.get(userId) ?? {};
-    const combinedText = [previous.summary, userMessage].filter(Boolean).join("\n");
+    const previousState = jobStateByUser.get(userId);
+    const extracted = await extractJobInfo(userMessage, previousState);
 
-    const extracted = await extractJobInfo(combinedText);
-    jobDraftsByUser.set(userId, extracted);
+    jobStateByUser.set(userId, {
+      name: extracted.name,
+      phone: extracted.phone,
+      address: extracted.address,
+      workType: extracted.workType,
+      urgency: extracted.urgency,
+    });
 
     if (extracted.missingFields.length === 0) {
       console.log("案件登録可能:", extracted);
