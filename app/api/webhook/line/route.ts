@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyLineSignature, replyToLine } from "../../../lib/line";
-import { extractJobInfo, JobState } from "../../../lib/extractInfo";
+import { verifyLineSignature, replyToLine } from "../../../../lib/line";
+import { extractJobInfo, JobState } from "../../../../lib/extractInfo";
 
 const jobStateByUser = new Map<string, JobState>();
 
@@ -40,3 +40,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
+
