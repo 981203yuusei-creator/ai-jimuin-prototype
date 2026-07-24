@@ -13,6 +13,8 @@ export type JobRow = {
   calendarEventId: string | null;
   createdAt: string;
   photoUrl: string | null;
+  reportComment: string | null;
+  reportPhotoUrl: string | null;
 };
 
 const URGENCY_OPTIONS = [
@@ -23,8 +25,26 @@ const URGENCY_OPTIONS = [
 
 const STATUS_OPTIONS = [
   { value: "collecting", label: "受付中" },
-  { value: "completed", label: "完了" },
+  { value: "completed", label: "受付完了(対応待ち)" },
+  { value: "done", label: "作業完了" },
 ];
+
+function CopyReportLinkButton({ jobId }: { jobId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    const url = `${window.location.origin}/report/${jobId}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button onClick={handleCopy} style={{ whiteSpace: "nowrap" }}>
+      {copied ? "コピーしました" : "報告リンクをコピー"}
+    </button>
+  );
+}
 
 function EditableRow({ job }: { job: JobRow }) {
   const [values, setValues] = useState({
@@ -113,6 +133,20 @@ function EditableRow({ job }: { job: JobRow }) {
         )}
       </td>
       <td style={{ padding: 8 }}>{calendarEventId ? "登録済み" : "-"}</td>
+      <td style={{ padding: 8, maxWidth: 200 }}>
+        {job.reportPhotoUrl && (
+          <a href={job.reportPhotoUrl} target="_blank" rel="noreferrer">
+            <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 48, display: "block" }} />
+          </a>
+        )}
+        {job.reportComment && (
+          <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
+        )}
+        {!job.reportPhotoUrl && !job.reportComment && "-"}
+      </td>
+      <td style={{ padding: 8 }}>
+        <CopyReportLinkButton jobId={job.id} />
+      </td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         <button onClick={handleSave} disabled={saving}>
           {saving ? "保存中..." : "保存"}
@@ -141,6 +175,8 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
           <th style={{ padding: 8 }}>緊急度</th>
           <th style={{ padding: 8 }}>写真</th>
           <th style={{ padding: 8 }}>カレンダー</th>
+          <th style={{ padding: 8 }}>作業報告</th>
+          <th style={{ padding: 8 }}></th>
           <th style={{ padding: 8 }}></th>
         </tr>
       </thead>

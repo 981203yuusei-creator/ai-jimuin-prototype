@@ -16,6 +16,7 @@ export default async function DashboardPage() {
     jobs.map(async (job) => ({
       ...job,
       photoUrl: job.photoPath ? await getSignedPhotoUrl(job.photoPath) : null,
+      reportPhotoUrl: job.reportPhotoPath ? await getSignedPhotoUrl(job.reportPhotoPath) : null,
     }))
   );
 

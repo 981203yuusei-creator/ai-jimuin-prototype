@@ -76,7 +76,26 @@ export type DashboardJob = {
   photoPath: string | null;
   calendarEventId: string | null;
   createdAt: string;
+  reportComment: string | null;
+  reportPhotoPath: string | null;
 };
+
+function mapDashboardJob(data: any): DashboardJob {
+  return {
+    id: data.id,
+    name: data.name,
+    phone: data.phone,
+    address: data.address,
+    workType: data.work_type,
+    urgency: data.urgency,
+    status: data.status,
+    photoPath: data.photo_path,
+    calendarEventId: data.calendar_event_id,
+    createdAt: data.created_at,
+    reportComment: data.report_comment,
+    reportPhotoPath: data.report_photo_path,
+  };
+}
 
 export async function getJobForCompany(companyId: string, jobId: string): Promise<DashboardJob | null> {
   const { data, error } = await getSupabase()
@@ -90,20 +109,7 @@ export async function getJobForCompany(companyId: string, jobId: string): Promis
     console.error("getJobForCompany failed:", error);
     return null;
   }
-  if (!data) return null;
-
-  return {
-    id: data.id,
-    name: data.name,
-    phone: data.phone,
-    address: data.address,
-    workType: data.work_type,
-    urgency: data.urgency,
-    status: data.status,
-    photoPath: data.photo_path,
-    calendarEventId: data.calendar_event_id,
-    createdAt: data.created_at,
-  };
+  return data ? mapDashboardJob(data) : null;
 }
 
 export type JobEditableFields = {
@@ -142,20 +148,7 @@ export async function updateJobForCompany(
     console.error("updateJobForCompany failed:", error);
     return null;
   }
-  if (!data) return null;
-
-  return {
-    id: data.id,
-    name: data.name,
-    phone: data.phone,
-    address: data.address,
-    workType: data.work_type,
-    urgency: data.urgency,
-    status: data.status,
-    photoPath: data.photo_path,
-    calendarEventId: data.calendar_event_id,
-    createdAt: data.created_at,
-  };
+  return data ? mapDashboardJob(data) : null;
 }
 
 export async function listJobsForCompany(companyId: string): Promise<DashboardJob[]> {
@@ -171,16 +164,55 @@ export async function listJobsForCompany(companyId: string): Promise<DashboardJo
     return [];
   }
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    name: row.name,
-    phone: row.phone,
-    address: row.address,
-    workType: row.work_type,
-    urgency: row.urgency,
-    status: row.status,
-    photoPath: row.photo_path,
-    calendarEventId: row.calendar_event_id,
-    createdAt: row.created_at,
-  }));
+  return (data ?? []).map(mapDashboardJob);
+}
+
+export type PublicJob = {
+  id: string;
+  companyId: string;
+  workType: string | null;
+  address: string | null;
+};
+
+export async function getJobForReport(jobId: string): Promise<PublicJob | null> {
+  const { data, error } = await getSupabase()
+    .from("jobs")
+    .select("id, company_id, work_type, address")
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getJobForReport failed:", error);
+    return null;
+  }
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    companyId: data.company_id,
+    workType: data.work_type,
+    address: data.address,
+  };
+}
+
+export async function submitJobReport(
+  jobId: string,
+  comment: string | null,
+  photoPath: string | null
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("jobs")
+    .update({
+      report_comment: comment,
+      report_photo_path: photoPath,
+      status: "done",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", jobId);
+
+  if (error) {
+    console.error("submitJobReport failed:", error);
+    return false;
+  }
+  return true;
 }

@@ -4,7 +4,7 @@ import { getCompanyById } from "../../../../../lib/companies";
 import { registerJobToCalendar } from "../../../../../lib/calendar";
 
 const URGENCY_VALUES = ["high", "normal", "low"];
-const STATUS_VALUES = ["collecting", "completed"];
+const STATUS_VALUES = ["collecting", "completed", "done"];
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const companyId = req.headers.get("x-company-id");
@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   };
 
   let calendarEventId = existing.calendarEventId;
-  if (fields.status === "completed" && !calendarEventId) {
+  if ((fields.status === "completed" || fields.status === "done") && !calendarEventId) {
     const company = await getCompanyById(companyId);
     calendarEventId = await registerJobToCalendar(
       {
