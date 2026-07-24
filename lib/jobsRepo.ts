@@ -78,6 +78,86 @@ export type DashboardJob = {
   createdAt: string;
 };
 
+export async function getJobForCompany(companyId: string, jobId: string): Promise<DashboardJob | null> {
+  const { data, error } = await getSupabase()
+    .from("jobs")
+    .select("*")
+    .eq("company_id", companyId)
+    .eq("id", jobId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getJobForCompany failed:", error);
+    return null;
+  }
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    name: data.name,
+    phone: data.phone,
+    address: data.address,
+    workType: data.work_type,
+    urgency: data.urgency,
+    status: data.status,
+    photoPath: data.photo_path,
+    calendarEventId: data.calendar_event_id,
+    createdAt: data.created_at,
+  };
+}
+
+export type JobEditableFields = {
+  name: string | null;
+  phone: string | null;
+  address: string | null;
+  workType: string | null;
+  urgency: string;
+  status: string;
+};
+
+export async function updateJobForCompany(
+  companyId: string,
+  jobId: string,
+  fields: JobEditableFields,
+  calendarEventId: string | null
+): Promise<DashboardJob | null> {
+  const { data, error } = await getSupabase()
+    .from("jobs")
+    .update({
+      name: fields.name,
+      phone: fields.phone,
+      address: fields.address,
+      work_type: fields.workType,
+      urgency: fields.urgency,
+      status: fields.status,
+      calendar_event_id: calendarEventId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("company_id", companyId)
+    .eq("id", jobId)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("updateJobForCompany failed:", error);
+    return null;
+  }
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    name: data.name,
+    phone: data.phone,
+    address: data.address,
+    workType: data.work_type,
+    urgency: data.urgency,
+    status: data.status,
+    photoPath: data.photo_path,
+    calendarEventId: data.calendar_event_id,
+    createdAt: data.created_at,
+  };
+}
+
 export async function listJobsForCompany(companyId: string): Promise<DashboardJob[]> {
   const { data, error } = await getSupabase()
     .from("jobs")

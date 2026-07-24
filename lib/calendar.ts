@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { JobState } from "./extractInfo";
+import { todayInJst } from "./time";
 
 function getAuth() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -21,7 +22,7 @@ export async function registerJobToCalendar(
     return null;
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInJst();
 
   try {
     const calendar = google.calendar({ version: "v3", auth: getAuth() });
