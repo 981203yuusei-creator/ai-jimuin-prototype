@@ -12,10 +12,12 @@ function getAuth() {
   });
 }
 
-export async function registerJobToCalendar(job: JobState): Promise<string | null> {
-  const calendarId = process.env.GOOGLE_CALENDAR_ID;
+export async function registerJobToCalendar(
+  job: JobState,
+  calendarId: string | null
+): Promise<string | null> {
   if (!calendarId) {
-    console.error("registerJobToCalendar skipped: GOOGLE_CALENDAR_ID is not set");
+    console.error("registerJobToCalendar skipped: company has no calendarId set");
     return null;
   }
 
