@@ -20,8 +20,24 @@ export type JobRow = {
   reportCompletedAt: string | null;
 };
 
-function formatJst(value: string | null): string | null {
-  return value ? new Date(value).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) : null;
+function formatJstDate(value: string | null): string | null {
+  return value
+    ? new Date(value).toLocaleDateString("ja-JP", {
+        timeZone: "Asia/Tokyo",
+        month: "numeric",
+        day: "numeric",
+      })
+    : null;
+}
+
+function formatJstTime(value: string | null): string | null {
+  return value
+    ? new Date(value).toLocaleTimeString("ja-JP", {
+        timeZone: "Asia/Tokyo",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
 }
 
 const URGENCY_OPTIONS = [
@@ -36,20 +52,24 @@ const STATUS_OPTIONS = [
   { value: "done", label: "作業完了" },
 ];
 
-function CopyReportLinkButton({ jobId }: { jobId: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    const url = `${window.location.origin}/report/${jobId}`;
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
+function OpenReportButton({ jobId }: { jobId: string }) {
   return (
-    <button onClick={handleCopy} style={{ whiteSpace: "nowrap" }}>
-      {copied ? "コピーしました" : "報告リンクをコピー"}
-    </button>
+    <a
+      href={`/report/${jobId}`}
+      target="_blank"
+      rel="noreferrer"
+      style={{
+        display: "inline-block",
+        padding: "4px 10px",
+        border: "1px solid #999",
+        borderRadius: 4,
+        whiteSpace: "nowrap",
+        textDecoration: "none",
+        color: "inherit",
+      }}
+    >
+      報告書を開く
+    </a>
   );
 }
 
@@ -86,17 +106,22 @@ function EditableRow({ job }: { job: JobRow }) {
   }
 
   const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
+  const selectStyle = { ...inputStyle, minWidth: 90 };
+
+  const workDate = formatJstDate(job.reportCompletedAt ?? job.reportStartedAt);
+  const startTime = formatJstTime(job.reportStartedAt);
+  const endTime = formatJstTime(job.reportCompletedAt);
 
   return (
     <tr style={{ borderBottom: "1px solid #eee" }}>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 140 }}>
         <select
           value={values.status}
           onChange={(e) => set("status", e.target.value)}
-          style={inputStyle}
+          style={selectStyle}
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -117,11 +142,11 @@ function EditableRow({ job }: { job: JobRow }) {
       <td style={{ padding: 8 }}>
         <input value={values.workType} onChange={(e) => set("workType", e.target.value)} style={inputStyle} />
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 80 }}>
         <select
           value={values.urgency}
           onChange={(e) => set("urgency", e.target.value)}
-          style={inputStyle}
+          style={selectStyle}
         >
           {URGENCY_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -149,23 +174,18 @@ function EditableRow({ job }: { job: JobRow }) {
         {job.reportWorkerName && (
           <div style={{ fontSize: 12, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
         )}
-        {(job.reportStartedAt || job.reportCompletedAt) && (
+        {workDate && (
           <div style={{ fontSize: 12, color: "#555" }}>
-            {formatJst(job.reportStartedAt) ?? "?"} 〜 {formatJst(job.reportCompletedAt) ?? "?"}
+            {workDate}の作業 {startTime ?? "?"} 〜 {endTime ?? "?"}
           </div>
         )}
         {job.reportComment && (
           <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
         )}
-        {!job.reportPhotoUrl &&
-          !job.reportWorkerName &&
-          !job.reportStartedAt &&
-          !job.reportCompletedAt &&
-          !job.reportComment &&
-          "-"}
+        {!job.reportPhotoUrl && !job.reportWorkerName && !workDate && !job.reportComment && "-"}
       </td>
       <td style={{ padding: 8 }}>
-        <CopyReportLinkButton jobId={job.id} />
+        <OpenReportButton jobId={job.id} />
       </td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         <button onClick={handleSave} disabled={saving}>
@@ -183,28 +203,30 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
   }
 
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-      <thead>
-        <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
-          <th style={{ padding: 8 }}>受付日時</th>
-          <th style={{ padding: 8 }}>状態</th>
-          <th style={{ padding: 8 }}>お名前</th>
-          <th style={{ padding: 8 }}>電話番号</th>
-          <th style={{ padding: 8 }}>住所</th>
-          <th style={{ padding: 8 }}>工事内容</th>
-          <th style={{ padding: 8 }}>緊急度</th>
-          <th style={{ padding: 8 }}>写真</th>
-          <th style={{ padding: 8 }}>カレンダー</th>
-          <th style={{ padding: 8 }}>作業報告</th>
-          <th style={{ padding: 8 }}></th>
-          <th style={{ padding: 8 }}></th>
-        </tr>
-      </thead>
-      <tbody>
-        {jobs.map((job) => (
-          <EditableRow key={job.id} job={job} />
-        ))}
-      </tbody>
-    </table>
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+        <thead>
+          <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
+            <th style={{ padding: 8 }}>受付日時</th>
+            <th style={{ padding: 8 }}>状態</th>
+            <th style={{ padding: 8 }}>お名前</th>
+            <th style={{ padding: 8 }}>電話番号</th>
+            <th style={{ padding: 8 }}>住所</th>
+            <th style={{ padding: 8 }}>工事内容</th>
+            <th style={{ padding: 8 }}>緊急度</th>
+            <th style={{ padding: 8 }}>写真</th>
+            <th style={{ padding: 8 }}>カレンダー</th>
+            <th style={{ padding: 8 }}>作業報告</th>
+            <th style={{ padding: 8 }}></th>
+            <th style={{ padding: 8 }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          {jobs.map((job) => (
+            <EditableRow key={job.id} job={job} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
