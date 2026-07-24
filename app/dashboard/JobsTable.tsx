@@ -15,7 +15,14 @@ export type JobRow = {
   photoUrl: string | null;
   reportComment: string | null;
   reportPhotoUrl: string | null;
+  reportWorkerName: string | null;
+  reportStartedAt: string | null;
+  reportCompletedAt: string | null;
 };
+
+function formatJst(value: string | null): string | null {
+  return value ? new Date(value).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) : null;
+}
 
 const URGENCY_OPTIONS = [
   { value: "high", label: "急ぎ" },
@@ -133,16 +140,29 @@ function EditableRow({ job }: { job: JobRow }) {
         )}
       </td>
       <td style={{ padding: 8 }}>{calendarEventId ? "登録済み" : "-"}</td>
-      <td style={{ padding: 8, maxWidth: 200 }}>
+      <td style={{ padding: 8, maxWidth: 220 }}>
         {job.reportPhotoUrl && (
           <a href={job.reportPhotoUrl} target="_blank" rel="noreferrer">
             <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 48, display: "block" }} />
           </a>
         )}
+        {job.reportWorkerName && (
+          <div style={{ fontSize: 12, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
+        )}
+        {(job.reportStartedAt || job.reportCompletedAt) && (
+          <div style={{ fontSize: 12, color: "#555" }}>
+            {formatJst(job.reportStartedAt) ?? "?"} 〜 {formatJst(job.reportCompletedAt) ?? "?"}
+          </div>
+        )}
         {job.reportComment && (
           <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
         )}
-        {!job.reportPhotoUrl && !job.reportComment && "-"}
+        {!job.reportPhotoUrl &&
+          !job.reportWorkerName &&
+          !job.reportStartedAt &&
+          !job.reportCompletedAt &&
+          !job.reportComment &&
+          "-"}
       </td>
       <td style={{ padding: 8 }}>
         <CopyReportLinkButton jobId={job.id} />

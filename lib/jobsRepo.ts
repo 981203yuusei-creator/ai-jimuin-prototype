@@ -78,6 +78,9 @@ export type DashboardJob = {
   createdAt: string;
   reportComment: string | null;
   reportPhotoPath: string | null;
+  reportWorkerName: string | null;
+  reportStartedAt: string | null;
+  reportCompletedAt: string | null;
 };
 
 function mapDashboardJob(data: any): DashboardJob {
@@ -94,6 +97,9 @@ function mapDashboardJob(data: any): DashboardJob {
     createdAt: data.created_at,
     reportComment: data.report_comment,
     reportPhotoPath: data.report_photo_path,
+    reportWorkerName: data.report_worker_name,
+    reportStartedAt: data.report_started_at,
+    reportCompletedAt: data.report_completed_at,
   };
 }
 
@@ -195,16 +201,23 @@ export async function getJobForReport(jobId: string): Promise<PublicJob | null> 
   };
 }
 
-export async function submitJobReport(
-  jobId: string,
-  comment: string | null,
-  photoPath: string | null
-): Promise<boolean> {
+export type JobReportInput = {
+  comment: string | null;
+  photoPath: string | null;
+  workerName: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+};
+
+export async function submitJobReport(jobId: string, report: JobReportInput): Promise<boolean> {
   const { error } = await getSupabase()
     .from("jobs")
     .update({
-      report_comment: comment,
-      report_photo_path: photoPath,
+      report_comment: report.comment,
+      report_photo_path: report.photoPath,
+      report_worker_name: report.workerName,
+      report_started_at: report.startedAt,
+      report_completed_at: report.completedAt,
       status: "done",
       updated_at: new Date().toISOString(),
     })

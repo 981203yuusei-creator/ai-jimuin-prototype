@@ -4,6 +4,7 @@ import { listJobsForCompany } from "../../lib/jobsRepo";
 import { getSignedPhotoUrl } from "../../lib/storage";
 import LogoutButton from "./LogoutButton";
 import JobsTable from "./JobsTable";
+import AutoRefresh from "./AutoRefresh";
 
 export default async function DashboardPage() {
   const companyId = headers().get("x-company-id") ?? "";
@@ -22,6 +23,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ maxWidth: 1100, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
+      <AutoRefresh />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h1 style={{ fontSize: 20 }}>案件一覧{company ? ` - ${company.name}` : ""}</h1>
         <LogoutButton />
