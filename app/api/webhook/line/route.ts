@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyLineSignature, replyToLine } from "../../../../lib/line";
-import { extractJobInfo, JobState } from "../../../../lib/extractInfo";
-
-const jobStateByUser = new Map<string, JobState>();
+import { extractJobInfo } from "../../../../lib/extractInfo";
+import { getOpenJob, saveJob } from "../../../../lib/jobsRepo";
+import { registerJobToCalendar } from "../../../../lib/calendar";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -20,20 +20,13 @@ export async function POST(req: NextRequest) {
     const userId = event.source.userId;
     const userMessage = event.message.text;
 
-    const previousState = jobStateByUser.get(userId);
-    const extracted = await extractJobInfo(userMessage, previousState);
+    const openJob = await getOpenJob(userId);
+    const extracted = await extractJobInfo(userMessage, openJob ?? undefined);
+    const isComplete = extracted.missingFields.length === 0;
 
-    jobStateByUser.set(userId, {
-      name: extracted.name,
-      phone: extracted.phone,
-      address: extracted.address,
-      workType: extracted.workType,
-      urgency: extracted.urgency,
-    });
+    const calendarEventId = isComplete ? await registerJobToCalendar(extracted) : null;
 
-    if (extracted.missingFields.length === 0) {
-      console.log("案件登録可能:", extracted);
-    }
+    await saveJob(userId, openJob?.id ?? null, extracted, isComplete, calendarEventId);
 
     await replyToLine(event.replyToken, extracted.replyMessage);
   }
