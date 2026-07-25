@@ -3,27 +3,34 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 
-function toDatetimeLocalValue(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-    date.getHours()
-  )}:${pad(date.getMinutes())}`;
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
-// datetime-local入力は日本時間の現地時刻としてそのまま扱い、送信時にJST(+09:00)を明示して
+function toDateValue(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function toTimeValue(date: Date): string {
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+// 日付・時刻は日本時間の現地入力としてそのまま扱い、送信時にJST(+09:00)を明示して
 // タイムゾーンのズレを防ぐ。
-function toJstIso(datetimeLocalValue: string): string | null {
-  if (!datetimeLocalValue) return null;
-  return `${datetimeLocalValue}:00+09:00`;
+function toJstIso(dateValue: string, timeValue: string): string | null {
+  if (!dateValue || !timeValue) return null;
+  return `${dateValue}T${timeValue}:00+09:00`;
 }
 
 export default function ReportPage() {
   const params = useParams();
   const jobId = params.id as string;
 
+  const now = new Date();
   const [workerName, setWorkerName] = useState("");
-  const [startedAt, setStartedAt] = useState("");
-  const [completedAt, setCompletedAt] = useState(() => toDatetimeLocalValue(new Date()));
+  const [workDate, setWorkDate] = useState(() => toDateValue(now));
+  const [startedTime, setStartedTime] = useState("");
+  const [completedTime, setCompletedTime] = useState(() => toTimeValue(now));
   const [comment, setComment] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -37,8 +44,8 @@ export default function ReportPage() {
 
     const formData = new FormData();
     formData.set("workerName", workerName);
-    formData.set("startedAt", toJstIso(startedAt) ?? "");
-    formData.set("completedAt", toJstIso(completedAt) ?? "");
+    formData.set("startedAt", toJstIso(workDate, startedTime) ?? "");
+    formData.set("completedAt", toJstIso(workDate, completedTime) ?? "");
     formData.set("comment", comment);
     if (photo) formData.set("photo", photo);
 
@@ -60,7 +67,7 @@ export default function ReportPage() {
     );
   }
 
-  const inputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const };
+  const inputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
 
   return (
     <div style={{ maxWidth: 320, margin: "40px auto", fontFamily: "sans-serif" }}>
@@ -71,22 +78,33 @@ export default function ReportPage() {
           <input value={workerName} onChange={(e) => setWorkerName(e.target.value)} style={inputStyle} />
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label style={{ display: "block", marginBottom: 4 }}>作業開始時間</label>
+          <label style={{ display: "block", marginBottom: 4 }}>作業日</label>
           <input
-            type="datetime-local"
-            value={startedAt}
-            onChange={(e) => setStartedAt(e.target.value)}
+            type="date"
+            value={workDate}
+            onChange={(e) => setWorkDate(e.target.value)}
             style={inputStyle}
           />
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ display: "block", marginBottom: 4 }}>完了時刻</label>
-          <input
-            type="datetime-local"
-            value={completedAt}
-            onChange={(e) => setCompletedAt(e.target.value)}
-            style={inputStyle}
-          />
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", marginBottom: 4 }}>開始時刻</label>
+            <input
+              type="time"
+              value={startedTime}
+              onChange={(e) => setStartedTime(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", marginBottom: 4 }}>完了時刻</label>
+            <input
+              type="time"
+              value={completedTime}
+              onChange={(e) => setCompletedTime(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", marginBottom: 4 }}>作業完了後の写真</label>

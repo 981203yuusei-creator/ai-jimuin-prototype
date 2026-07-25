@@ -176,7 +176,7 @@ function EditableRow({ job }: { job: JobRow }) {
         )}
         {workDate && (
           <div style={{ fontSize: 12, color: "#555" }}>
-            {workDate}の作業 {startTime ?? "?"} 〜 {endTime ?? "?"}
+            {workDate} {startTime ?? "?"} 〜 {endTime ?? "?"}
           </div>
         )}
         {job.reportComment && (
