@@ -40,7 +40,7 @@ export async function saveJob(
   state: JobState,
   completed: boolean,
   calendarEventId: string | null
-): Promise<void> {
+): Promise<string | null> {
   const payload = {
     company_id: companyId,
     line_user_id: lineUserId,
@@ -56,13 +56,22 @@ export async function saveJob(
   };
 
   const db = getSupabase();
-  const { error } = existingId
-    ? await db.from("jobs").update(payload).eq("id", existingId)
-    : await db.from("jobs").insert(payload);
 
+  if (existingId) {
+    const { error } = await db.from("jobs").update(payload).eq("id", existingId);
+    if (error) {
+      console.error("saveJob failed:", error);
+      return null;
+    }
+    return existingId;
+  }
+
+  const { data, error } = await db.from("jobs").insert(payload).select("id").maybeSingle();
   if (error) {
     console.error("saveJob failed:", error);
+    return null;
   }
+  return data?.id ?? null;
 }
 
 export type DashboardJob = {

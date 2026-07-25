@@ -29,12 +29,20 @@ async function finalizeJob(
 ) {
   const missingFields = getMissingFields(state);
   const isComplete = missingFields.length === 0;
-  const calendarEventId = isComplete
-    ? await registerJobToCalendar(state, company.calendarId)
-    : null;
 
-  await saveJob(company.id, userId, jobId, state, isComplete, calendarEventId);
+  // 先にDBへ保存してから返信する(直後に次のメッセージが来ても最新状態を参照できるように)。
+  const savedJobId = await saveJob(company.id, userId, jobId, state, isComplete, null);
+
+  // お客様への返信を最優先で送る。Googleカレンダー登録は認証込みで時間がかかるため、
+  // 返信の後に回しても体感速度には影響しない。
   await replyToLine(replyToken, replyText, company.lineChannelAccessToken);
+
+  if (isComplete && savedJobId) {
+    const calendarEventId = await registerJobToCalendar(state, company.calendarId);
+    if (calendarEventId) {
+      await saveJob(company.id, userId, savedJobId, state, true, calendarEventId);
+    }
+  }
 }
 
 export async function POST(req: NextRequest) {
