@@ -6,6 +6,7 @@ import LogoutButton from "./LogoutButton";
 import JobsTable from "./JobsTable";
 import AutoRefresh from "./AutoRefresh";
 import NotifySettings from "./NotifySettings";
+import AddJobForm from "./AddJobForm";
 
 export default async function DashboardPage() {
   const companyId = headers().get("x-company-id") ?? "";
@@ -31,6 +32,8 @@ export default async function DashboardPage() {
       </div>
 
       <NotifySettings connected={!!company?.ownerLineUserId} />
+
+      <AddJobForm />
 
       <JobsTable jobs={jobRows} />
     </div>

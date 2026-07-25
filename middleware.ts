@@ -22,5 +22,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/dashboard/jobs/:path*", "/api/dashboard/notify-code"],
+  matcher: [
+    "/dashboard/:path*",
+    "/api/dashboard/jobs",
+    "/api/dashboard/jobs/:path*",
+    "/api/dashboard/notify-code",
+  ],
 };

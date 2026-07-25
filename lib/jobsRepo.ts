@@ -136,6 +136,34 @@ export type JobEditableFields = {
   status: string;
 };
 
+export async function createManualJob(
+  companyId: string,
+  fields: JobEditableFields,
+  calendarEventId: string | null
+): Promise<DashboardJob | null> {
+  const { data, error } = await getSupabase()
+    .from("jobs")
+    .insert({
+      company_id: companyId,
+      line_user_id: null,
+      name: fields.name,
+      phone: fields.phone,
+      address: fields.address,
+      work_type: fields.workType,
+      urgency: fields.urgency,
+      status: fields.status,
+      calendar_event_id: calendarEventId,
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("createManualJob failed:", error);
+    return null;
+  }
+  return data ? mapDashboardJob(data) : null;
+}
+
 export async function updateJobForCompany(
   companyId: string,
   jobId: string,

@@ -58,28 +58,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   done: { bg: "#d1fae5", color: "#065f46" },
 };
 
-function OpenReportButton({ jobId }: { jobId: string }) {
-  return (
-    <a
-      href={`/report/${jobId}`}
-      target="_blank"
-      rel="noreferrer"
-      style={{
-        display: "inline-block",
-        padding: "4px 10px",
-        border: "1px solid #999",
-        borderRadius: 4,
-        whiteSpace: "nowrap",
-        textDecoration: "none",
-        color: "inherit",
-      }}
-    >
-      報告書を開く
-    </a>
-  );
-}
-
-function EditableRow({ job }: { job: JobRow }) {
+function useEditableJob(job: JobRow) {
   const [values, setValues] = useState({
     name: job.name ?? "",
     phone: job.phone ?? "",
@@ -111,12 +90,99 @@ function EditableRow({ job }: { job: JobRow }) {
     }
   }
 
-  const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
-  const selectStyle = { ...inputStyle, minWidth: 90 };
+  return { values, set, calendarEventId, saving, savedAt, handleSave };
+}
 
+function OpenReportButton({ jobId }: { jobId: string }) {
+  return (
+    <a
+      href={`/report/${jobId}`}
+      target="_blank"
+      rel="noreferrer"
+      style={{
+        display: "inline-block",
+        padding: "6px 12px",
+        border: "1px solid #999",
+        borderRadius: 4,
+        whiteSpace: "nowrap",
+        textDecoration: "none",
+        color: "inherit",
+      }}
+    >
+      報告書を開く
+    </a>
+  );
+}
+
+function ReportSummary({ job }: { job: JobRow }) {
   const workDate = formatJstDate(job.reportCompletedAt ?? job.reportStartedAt);
   const startTime = formatJstTime(job.reportStartedAt);
   const endTime = formatJstTime(job.reportCompletedAt);
+
+  if (!job.reportPhotoUrl && !job.reportWorkerName && !workDate && !job.reportComment) {
+    return <>-</>;
+  }
+
+  return (
+    <>
+      {job.reportPhotoUrl && (
+        <a href={job.reportPhotoUrl} target="_blank" rel="noreferrer">
+          <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 48, display: "block" }} />
+        </a>
+      )}
+      {job.reportWorkerName && (
+        <div style={{ fontSize: 12, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
+      )}
+      {workDate && (
+        <div style={{ fontSize: 12, color: "#555" }}>
+          {workDate} {startTime ?? "?"} 〜 {endTime ?? "?"}
+        </div>
+      )}
+      {job.reportComment && (
+        <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
+      )}
+    </>
+  );
+}
+
+function StatusSelect({
+  value,
+  onChange,
+  style,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        padding: 4,
+        boxSizing: "border-box",
+        backgroundColor: STATUS_COLORS[value]?.bg,
+        color: STATUS_COLORS[value]?.color,
+        fontWeight: 600,
+        border: "none",
+        borderRadius: 4,
+        fontSize: 16,
+        ...style,
+      }}
+    >
+      {STATUS_OPTIONS.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function EditableRow({ job }: { job: JobRow }) {
+  const { values, set, calendarEventId, saving, savedAt, handleSave } = useEditableJob(job);
+  const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
+  const selectStyle = { ...inputStyle, minWidth: 90 };
 
   return (
     <tr style={{ borderBottom: "1px solid #eee" }}>
@@ -124,24 +190,7 @@ function EditableRow({ job }: { job: JobRow }) {
         {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
       </td>
       <td style={{ padding: 8, minWidth: 140 }}>
-        <select
-          value={values.status}
-          onChange={(e) => set("status", e.target.value)}
-          style={{
-            ...selectStyle,
-            backgroundColor: STATUS_COLORS[values.status]?.bg,
-            color: STATUS_COLORS[values.status]?.color,
-            fontWeight: 600,
-            border: "none",
-            borderRadius: 4,
-          }}
-        >
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <StatusSelect value={values.status} onChange={(v) => set("status", v)} style={{ minWidth: 90 }} />
       </td>
       <td style={{ padding: 8 }}>
         <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
@@ -179,23 +228,7 @@ function EditableRow({ job }: { job: JobRow }) {
       </td>
       <td style={{ padding: 8 }}>{calendarEventId ? "登録済み" : "-"}</td>
       <td style={{ padding: 8, maxWidth: 220 }}>
-        {job.reportPhotoUrl && (
-          <a href={job.reportPhotoUrl} target="_blank" rel="noreferrer">
-            <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 48, display: "block" }} />
-          </a>
-        )}
-        {job.reportWorkerName && (
-          <div style={{ fontSize: 12, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
-        )}
-        {workDate && (
-          <div style={{ fontSize: 12, color: "#555" }}>
-            {workDate} {startTime ?? "?"} 〜 {endTime ?? "?"}
-          </div>
-        )}
-        {job.reportComment && (
-          <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
-        )}
-        {!job.reportPhotoUrl && !job.reportWorkerName && !workDate && !job.reportComment && "-"}
+        <ReportSummary job={job} />
       </td>
       <td style={{ padding: 8 }}>
         <OpenReportButton jobId={job.id} />
@@ -210,36 +243,138 @@ function EditableRow({ job }: { job: JobRow }) {
   );
 }
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginTop: 10 }}>
+      <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function JobCard({ job }: { job: JobRow }) {
+  const { values, set, calendarEventId, saving, savedAt, handleSave } = useEditableJob(job);
+  const cardInputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
+
+  return (
+    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#666" }}>
+          {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
+        </span>
+      </div>
+      <div style={{ marginTop: 8 }}>
+        <StatusSelect value={values.status} onChange={(v) => set("status", v)} style={{ width: "100%" }} />
+      </div>
+      <Field label="お名前">
+        <input value={values.name} onChange={(e) => set("name", e.target.value)} style={cardInputStyle} />
+      </Field>
+      <Field label="電話番号">
+        <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={cardInputStyle} />
+      </Field>
+      <Field label="住所">
+        <input value={values.address} onChange={(e) => set("address", e.target.value)} style={cardInputStyle} />
+      </Field>
+      <Field label="工事内容">
+        <input
+          value={values.workType}
+          onChange={(e) => set("workType", e.target.value)}
+          style={cardInputStyle}
+        />
+      </Field>
+      <Field label="緊急度">
+        <select
+          value={values.urgency}
+          onChange={(e) => set("urgency", e.target.value)}
+          style={cardInputStyle}
+        >
+          {URGENCY_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label="写真">
+        {job.photoUrl ? (
+          <a href={job.photoUrl} target="_blank" rel="noreferrer">
+            <img src={job.photoUrl} alt="現場写真" style={{ height: 64 }} />
+          </a>
+        ) : (
+          "-"
+        )}
+      </Field>
+      <Field label="カレンダー">{calendarEventId ? "登録済み" : "-"}</Field>
+      <Field label="作業報告">
+        <ReportSummary job={job} />
+      </Field>
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <OpenReportButton jobId={job.id} />
+        <button onClick={handleSave} disabled={saving} style={{ padding: "6px 12px" }}>
+          {saving ? "保存中..." : "保存"}
+        </button>
+        {savedAt && <span style={{ color: "green", alignSelf: "center" }}>✓</span>}
+      </div>
+    </div>
+  );
+}
+
 export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
   if (jobs.length === 0) {
     return <p>まだ案件がありません。</p>;
   }
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-        <thead>
-          <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
-            <th style={{ padding: 8 }}>受付日時</th>
-            <th style={{ padding: 8 }}>状態</th>
-            <th style={{ padding: 8 }}>お名前</th>
-            <th style={{ padding: 8 }}>電話番号</th>
-            <th style={{ padding: 8 }}>住所</th>
-            <th style={{ padding: 8 }}>工事内容</th>
-            <th style={{ padding: 8 }}>緊急度</th>
-            <th style={{ padding: 8 }}>写真</th>
-            <th style={{ padding: 8 }}>カレンダー</th>
-            <th style={{ padding: 8 }}>作業報告</th>
-            <th style={{ padding: 8 }}></th>
-            <th style={{ padding: 8 }}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {jobs.map((job) => (
-            <EditableRow key={job.id} job={job} />
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <div className="jobs-table-desktop">
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <thead>
+            <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
+              <th style={{ padding: 8 }}>受付日時</th>
+              <th style={{ padding: 8 }}>状態</th>
+              <th style={{ padding: 8 }}>お名前</th>
+              <th style={{ padding: 8 }}>電話番号</th>
+              <th style={{ padding: 8 }}>住所</th>
+              <th style={{ padding: 8 }}>工事内容</th>
+              <th style={{ padding: 8 }}>緊急度</th>
+              <th style={{ padding: 8 }}>写真</th>
+              <th style={{ padding: 8 }}>カレンダー</th>
+              <th style={{ padding: 8 }}>作業報告</th>
+              <th style={{ padding: 8 }}></th>
+              <th style={{ padding: 8 }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {jobs.map((job) => (
+              <EditableRow key={job.id} job={job} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="jobs-cards-mobile">
+        {jobs.map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </div>
+
+      <style jsx>{`
+        .jobs-table-desktop {
+          display: block;
+          overflow-x: auto;
+        }
+        .jobs-cards-mobile {
+          display: none;
+        }
+        @media (max-width: 800px) {
+          .jobs-table-desktop {
+            display: none;
+          }
+          .jobs-cards-mobile {
+            display: block;
+          }
+        }
+      `}</style>
     </div>
   );
 }
