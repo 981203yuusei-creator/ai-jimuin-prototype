@@ -19,11 +19,39 @@ const EMPTY = { name: "", phone: "", address: "", workType: "", urgency: "normal
 export default function AddJobForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [memo, setMemo] = useState("");
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState<string | null>(null);
   const [values, setValues] = useState(EMPTY);
   const [submitting, setSubmitting] = useState(false);
 
   function set<K extends keyof typeof values>(key: K, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleExtract() {
+    if (!memo.trim()) return;
+    setExtracting(true);
+    setExtractError(null);
+    const res = await fetch("/api/dashboard/extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: memo }),
+    });
+    setExtracting(false);
+    if (!res.ok) {
+      setExtractError("自動入力に失敗しました。下の項目を手入力してください。");
+      return;
+    }
+    const body = await res.json();
+    setValues((prev) => ({
+      ...prev,
+      name: body.name ?? prev.name,
+      phone: body.phone ?? prev.phone,
+      address: body.address ?? prev.address,
+      workType: body.workType ?? prev.workType,
+      urgency: body.urgency ?? prev.urgency,
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,6 +65,7 @@ export default function AddJobForm() {
     setSubmitting(false);
     if (res.ok) {
       setValues(EMPTY);
+      setMemo("");
       setOpen(false);
       router.refresh();
     }
@@ -47,7 +76,7 @@ export default function AddJobForm() {
   if (!open) {
     return (
       <div style={{ marginBottom: 16 }}>
-        <button onClick={() => setOpen(true)}>+ 電話受付を手入力で追加</button>
+        <button onClick={() => setOpen(true)}>+ 電話受付を追加</button>
       </div>
     );
   }
@@ -57,7 +86,34 @@ export default function AddJobForm() {
       onSubmit={handleSubmit}
       style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 16, maxWidth: 400 }}
     >
-      <strong>電話受付を手入力で追加</strong>
+      <strong>電話受付を追加</strong>
+
+      <div style={{ marginTop: 10, padding: 10, backgroundColor: "#f5f5f5", borderRadius: 6 }}>
+        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 4 }}>
+          電話の内容をそのままメモしてください(AIが自動で項目に振り分けます)
+        </label>
+        <textarea
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          rows={3}
+          placeholder="例: 山田さん 090-1234-5678 横浜市西区 エアコン故障 急ぎ"
+          style={{ ...inputStyle, backgroundColor: "#fff" }}
+        />
+        <button
+          type="button"
+          onClick={handleExtract}
+          disabled={extracting || !memo.trim()}
+          style={{ marginTop: 6 }}
+        >
+          {extracting ? "AIが読み取り中..." : "AIで自動入力"}
+        </button>
+        {extractError && <p style={{ color: "red", fontSize: 12, marginTop: 6 }}>{extractError}</p>}
+      </div>
+
+      <p style={{ fontSize: 12, color: "#666", marginTop: 12 }}>
+        内容を確認・修正してから追加してください。
+      </p>
+
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>お名前</label>
         <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
