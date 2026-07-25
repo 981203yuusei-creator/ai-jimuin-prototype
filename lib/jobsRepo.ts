@@ -185,6 +185,7 @@ export async function listJobsForCompany(companyId: string): Promise<DashboardJo
 export type PublicJob = {
   id: string;
   companyId: string;
+  name: string | null;
   workType: string | null;
   address: string | null;
 };
@@ -192,7 +193,7 @@ export type PublicJob = {
 export async function getJobForReport(jobId: string): Promise<PublicJob | null> {
   const { data, error } = await getSupabase()
     .from("jobs")
-    .select("id, company_id, work_type, address")
+    .select("id, company_id, name, work_type, address")
     .eq("id", jobId)
     .maybeSingle();
 
@@ -205,6 +206,7 @@ export async function getJobForReport(jobId: string): Promise<PublicJob | null> 
   return {
     id: data.id,
     companyId: data.company_id,
+    name: data.name,
     workType: data.work_type,
     address: data.address,
   };

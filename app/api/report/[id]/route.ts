@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJobForReport, submitJobReport } from "../../../../lib/jobsRepo";
 import { uploadReportPhoto } from "../../../../lib/storage";
+import { getCompanyById } from "../../../../lib/companies";
+import { notifyOwner } from "../../../../lib/notify";
 
 function textField(formData: FormData, key: string): string | null {
   return (formData.get(key) as string | null)?.trim() || null;
@@ -34,6 +36,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   });
   if (!ok) {
     return NextResponse.json({ error: "update failed" }, { status: 500 });
+  }
+
+  const company = await getCompanyById(job.companyId);
+  if (company) {
+    const dashboardUrl = new URL(req.url).origin;
+    const message = [
+      "【作業完了報告】",
+      `案件: ${job.workType ?? "工事"} - ${job.name ?? "お客様"}`,
+      workerName ? `担当: ${workerName}` : null,
+      comment ? `コメント: ${comment}` : null,
+      "",
+      `ダッシュボード: ${dashboardUrl}/dashboard`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    await notifyOwner(company, message);
   }
 
   return NextResponse.json({ ok: true });

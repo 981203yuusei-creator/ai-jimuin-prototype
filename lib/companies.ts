@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { getSupabase } from "./supabase";
 
 export type Company = {
@@ -9,6 +10,8 @@ export type Company = {
   calendarId: string | null;
   dashboardUsername: string;
   dashboardPasswordHash: string;
+  ownerLineUserId: string | null;
+  ownerRegistrationCode: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -21,6 +24,8 @@ function mapRow(data: any): Company {
     calendarId: data.calendar_id,
     dashboardUsername: data.dashboard_username,
     dashboardPasswordHash: data.dashboard_password_hash,
+    ownerLineUserId: data.owner_line_user_id,
+    ownerRegistrationCode: data.owner_registration_code,
   };
 }
 
@@ -64,4 +69,30 @@ export async function getCompanyById(id: string): Promise<Company | null> {
     return null;
   }
   return data ? mapRow(data) : null;
+}
+
+export async function generateOwnerRegistrationCode(companyId: string): Promise<string | null> {
+  const code = crypto.randomInt(100000, 999999).toString();
+
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ owner_registration_code: code })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("generateOwnerRegistrationCode failed:", error);
+    return null;
+  }
+  return code;
+}
+
+export async function confirmOwnerRegistration(companyId: string, lineUserId: string): Promise<void> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ owner_line_user_id: lineUserId, owner_registration_code: null })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("confirmOwnerRegistration failed:", error);
+  }
 }

@@ -29,6 +29,25 @@ export async function replyToLine(replyToken: string, text: string, accessToken:
   }
 }
 
+export async function pushLineMessage(userId: string, text: string, accessToken: string) {
+  const res = await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      to: userId,
+      messages: [{ type: "text", text }],
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("LINE push failed:", err);
+  }
+}
+
 export async function getLineImageContent(
   messageId: string,
   accessToken: string
