@@ -52,6 +52,12 @@ const STATUS_OPTIONS = [
   { value: "done", label: "作業完了" },
 ];
 
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  collecting: { bg: "#dbeafe", color: "#1e40af" },
+  completed: { bg: "#fef3c7", color: "#92400e" },
+  done: { bg: "#d1fae5", color: "#065f46" },
+};
+
 function OpenReportButton({ jobId }: { jobId: string }) {
   return (
     <a
@@ -121,7 +127,14 @@ function EditableRow({ job }: { job: JobRow }) {
         <select
           value={values.status}
           onChange={(e) => set("status", e.target.value)}
-          style={selectStyle}
+          style={{
+            ...selectStyle,
+            backgroundColor: STATUS_COLORS[values.status]?.bg,
+            color: STATUS_COLORS[values.status]?.color,
+            fontWeight: 600,
+            border: "none",
+            borderRadius: 4,
+          }}
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
