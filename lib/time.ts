@@ -32,5 +32,8 @@ export function combineJstDateTime(date: string, time: string): string | null {
 export function addHoursIso(iso: string, hours: number): string {
   const d = new Date(iso);
   d.setUTCHours(d.getUTCHours() + hours);
-  return d.toISOString();
+  // start/endで表記(UTCのZ表記 と +09:00オフセット表記)が混在すると
+  // Google Calendar APIが"Invalid start time"で拒否するため、常に+09:00表記に揃える。
+  const { date, time } = splitJstDateTime(d.toISOString());
+  return `${date}T${time}:00+09:00`;
 }
