@@ -252,13 +252,13 @@ function ScheduleInputs({
         type="date"
         value={date}
         onChange={(e) => onDateChange(e.target.value)}
-        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 0 }}
+        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 120 }}
       />
       <input
         type="time"
         value={time}
         onChange={(e) => onTimeChange(e.target.value)}
-        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 0 }}
+        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 90 }}
       />
     </div>
   );
@@ -279,19 +279,19 @@ function EditableRow({ job }: { job: JobRow }) {
       <td style={{ padding: 8, minWidth: 140 }}>
         <StatusSelect value={values.status} onChange={(v) => set("status", v)} style={{ minWidth: 90 }} />
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 110 }}>
         <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 130 }}>
         <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={inputStyle} />
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 160 }}>
         <input value={values.address} onChange={(e) => set("address", e.target.value)} style={inputStyle} />
       </td>
-      <td style={{ padding: 8 }}>
+      <td style={{ padding: 8, minWidth: 140 }}>
         <input value={values.workType} onChange={(e) => set("workType", e.target.value)} style={inputStyle} />
       </td>
-      <td style={{ padding: 8, minWidth: 160 }}>
+      <td style={{ padding: 8, minWidth: 230 }}>
         <ScheduleInputs
           date={values.scheduledDate}
           time={values.scheduledTime}
