@@ -5,6 +5,7 @@ import { splitJstDateTime, combineJstDateTime } from "../../lib/time";
 
 export type JobRow = {
   id: string;
+  jobNumber: number | null;
   name: string | null;
   phone: string | null;
   address: string | null;
@@ -302,6 +303,7 @@ function EditableRow({ job }: { job: JobRow }) {
 
   return (
     <tr style={{ borderBottom: "1px solid #eee" }}>
+      <td style={{ padding: 8, whiteSpace: "nowrap" }}>{job.jobNumber ?? "-"}</td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
       </td>
@@ -417,6 +419,7 @@ function JobCard({ job }: { job: JobRow }) {
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 13, fontWeight: 600 }}>No. {job.jobNumber ?? "-"}</span>
         <span style={{ fontSize: 12, color: "#666" }}>
           {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </span>
@@ -517,6 +520,7 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
+              <th style={{ padding: 8 }}>No.</th>
               <th style={{ padding: 8 }}>受付日時</th>
               <th style={{ padding: 8 }}>状態</th>
               <th style={{ padding: 8 }}>お名前</th>

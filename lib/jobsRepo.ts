@@ -32,6 +32,21 @@ export async function getOpenJob(companyId: string, lineUserId: string): Promise
   };
 }
 
+async function nextJobNumber(companyId: string): Promise<number> {
+  const { data, error } = await getSupabase()
+    .from("jobs")
+    .select("job_number")
+    .eq("company_id", companyId)
+    .order("job_number", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("nextJobNumber failed:", error);
+  }
+  return (data?.job_number ?? 0) + 1;
+}
+
 export async function saveJob(
   companyId: string,
   lineUserId: string,
@@ -64,7 +79,11 @@ export async function saveJob(
     return existingId;
   }
 
-  const { data, error } = await db.from("jobs").insert(payload).select("id").maybeSingle();
+  const { data, error } = await db
+    .from("jobs")
+    .insert({ ...payload, job_number: await nextJobNumber(companyId) })
+    .select("id")
+    .maybeSingle();
   if (error) {
     console.error("saveJob failed:", error);
     return null;
@@ -74,6 +93,7 @@ export async function saveJob(
 
 export type DashboardJob = {
   id: string;
+  jobNumber: number | null;
   name: string | null;
   phone: string | null;
   address: string | null;
@@ -96,6 +116,7 @@ export type DashboardJob = {
 function mapDashboardJob(data: any): DashboardJob {
   return {
     id: data.id,
+    jobNumber: data.job_number,
     name: data.name,
     phone: data.phone,
     address: data.address,
@@ -166,6 +187,7 @@ export async function createManualJob(
     .from("jobs")
     .insert({
       company_id: companyId,
+      job_number: await nextJobNumber(companyId),
       line_user_id: null,
       name: fields.name,
       phone: fields.phone,
@@ -240,7 +262,9 @@ export async function listJobsForCompany(companyId: string): Promise<DashboardJo
 export type PublicJob = {
   id: string;
   companyId: string;
+  jobNumber: number | null;
   name: string | null;
+  phone: string | null;
   workType: string | null;
   address: string | null;
 };
@@ -248,7 +272,7 @@ export type PublicJob = {
 export async function getJobForReport(jobId: string): Promise<PublicJob | null> {
   const { data, error } = await getSupabase()
     .from("jobs")
-    .select("id, company_id, name, work_type, address")
+    .select("id, company_id, job_number, name, phone, work_type, address")
     .eq("id", jobId)
     .maybeSingle();
 
@@ -261,7 +285,9 @@ export async function getJobForReport(jobId: string): Promise<PublicJob | null> 
   return {
     id: data.id,
     companyId: data.company_id,
+    jobNumber: data.job_number,
     name: data.name,
+    phone: data.phone,
     workType: data.work_type,
     address: data.address,
   };
