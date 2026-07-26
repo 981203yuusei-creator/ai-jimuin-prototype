@@ -139,24 +139,54 @@ function useEditableJob(job: JobRow) {
   };
 }
 
-function OpenReportButton({ jobId }: { jobId: string }) {
+function ShareInstructionButton({ jobId }: { jobId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const url = `${window.location.origin}/report/${jobId}`;
+    const shareNavigator = navigator as Navigator & {
+      share?: (data: { title?: string; url?: string }) => Promise<void>;
+    };
+
+    if (shareNavigator.share) {
+      try {
+        await shareNavigator.share({ title: "作業指示書", url });
+      } catch {
+        // 共有シートを閉じた/キャンセルした場合は何もしない
+      }
+      return;
+    }
+
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
-    <a
-      href={`/report/${jobId}`}
-      target="_blank"
-      rel="noreferrer"
-      style={{
-        display: "inline-block",
-        padding: "6px 12px",
-        border: "1px solid #999",
-        borderRadius: 4,
-        whiteSpace: "nowrap",
-        textDecoration: "none",
-        color: "inherit",
-      }}
-    >
-      報告書を開く
-    </a>
+    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" as const }}>
+      <button
+        type="button"
+        onClick={handleShare}
+        style={{
+          padding: "6px 12px",
+          border: "1px solid #999",
+          borderRadius: 4,
+          whiteSpace: "nowrap",
+          backgroundColor: "#fff",
+        }}
+      >
+        作業指示書を送る
+      </button>
+      <a
+        href={`/report/${jobId}`}
+        target="_blank"
+        rel="noreferrer"
+        style={{ fontSize: 12, color: "#555", whiteSpace: "nowrap" }}
+      >
+        開く
+      </a>
+      {copied && <span style={{ fontSize: 12, color: "green" }}>コピーしました</span>}
+    </div>
   );
 }
 
@@ -369,7 +399,7 @@ function EditableRow({ job }: { job: JobRow }) {
         />
       </td>
       <td style={{ padding: 8 }}>
-        <OpenReportButton jobId={job.id} />
+        <ShareInstructionButton jobId={job.id} />
       </td>
       <td style={{ padding: 8 }}>
         <InvoiceLinks jobId={job.id} />
@@ -489,7 +519,7 @@ function JobCard({ job }: { job: JobRow }) {
         />
       </Field>
       <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-        <OpenReportButton jobId={job.id} />
+        <ShareInstructionButton jobId={job.id} />
         <InvoiceLinks jobId={job.id} />
       </div>
       <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>

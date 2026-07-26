@@ -19,7 +19,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
   return (
     <div style={{ maxWidth: 320, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
-      <h1 style={{ fontSize: 18, marginBottom: 16 }}>作業完了報告</h1>
+      <h1 style={{ fontSize: 18, marginBottom: 16 }}>作業指示書</h1>
 
       <div
         style={{
@@ -51,6 +51,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
         )}
       </div>
 
+      <h2 style={{ fontSize: 15, marginBottom: 8 }}>作業完了報告</h2>
       <ReportForm jobId={job.id} />
     </div>
   );
