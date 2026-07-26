@@ -34,6 +34,9 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", marginBottom: 4 }}>ユーザー名</label>
+          <p style={{ fontSize: 12, color: "#666", marginTop: 0, marginBottom: 6 }}>
+            お申込み時にご自身で設定したユーザー名です(会社名ではありません)
+          </p>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
