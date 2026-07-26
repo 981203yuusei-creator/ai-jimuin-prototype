@@ -248,7 +248,7 @@ export async function listJobsForCompany(companyId: string): Promise<DashboardJo
     .from("jobs")
     .select("*")
     .eq("company_id", companyId)
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: true })
     .limit(5000);
 
   if (error) {
