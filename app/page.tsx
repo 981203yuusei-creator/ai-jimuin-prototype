@@ -41,9 +41,34 @@ const STEPS: string[] = [
   "作業完了報告を受け取り、見積書・請求書を発行",
 ];
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "ジムアシ",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "現場に集中。事務はAIに。LINEでのお客様対応・AIによる自動入力・スケジュール管理・見積書/請求書作成・確定申告対応まで、電気工事・水道工事の小規模事業者向け事務アシスタントSaaS。",
+  offers: {
+    "@type": "Offer",
+    price: "9800",
+    priceCurrency: "JPY",
+    priceSpecification: {
+      "@type": "UnitPriceSpecification",
+      price: "9800",
+      priceCurrency: "JPY",
+      billingDuration: "P1M",
+    },
+  },
+};
+
 export default function Home() {
   return (
     <div style={{ fontFamily: "sans-serif", color: "#1a1a1a" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       <section
         style={{
           padding: "64px 16px 48px",
