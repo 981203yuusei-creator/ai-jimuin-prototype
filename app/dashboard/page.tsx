@@ -7,6 +7,7 @@ import JobsTable from "./JobsTable";
 import AutoRefresh from "./AutoRefresh";
 import AddJobForm from "./AddJobForm";
 import StatsSummary from "./StatsSummary";
+import MonthlyStats from "./MonthlyStats";
 import FontSizeControl from "./FontSizeControl";
 
 export default async function DashboardPage() {
@@ -37,6 +38,8 @@ export default async function DashboardPage() {
       </div>
 
       <StatsSummary jobs={jobs} />
+
+      <MonthlyStats jobs={jobs} />
 
       <AddJobForm />
 
