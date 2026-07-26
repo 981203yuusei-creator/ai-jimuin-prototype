@@ -52,7 +52,11 @@ export default function LineIntegrationSettings({
         {connected ? "(連携済み)" : "(未設定)"}
       </span>
       <p style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-        LINE Developersコンソールで作成したチャネルの情報を入力してください。ご不明な場合はお問い合わせください。
+        LINE Developersコンソールで作成したチャネルの情報を入力してください。設定方法は
+        <a href="/guide/line-setup" target="_blank" rel="noreferrer">
+          こちらのマニュアル
+        </a>
+        をご覧ください。
       </p>
 
       <div style={{ marginTop: 8 }}>

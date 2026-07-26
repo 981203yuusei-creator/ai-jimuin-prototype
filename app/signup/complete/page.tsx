@@ -5,8 +5,11 @@ export default function SignupCompletePage() {
       <p style={{ fontSize: 14, color: "#333", marginBottom: 8 }}>
         お支払いの確認が完了次第、登録いただいたユーザー名・パスワードでダッシュボードにログインできるようになります。
       </p>
-      <p style={{ fontSize: 14, color: "#333", marginBottom: 24 }}>
-        LINE公式アカウントやGoogleカレンダーとの連携設定については、追ってご連絡いたします。
+      <p style={{ fontSize: 14, color: "#333", marginBottom: 8 }}>
+        LINE公式アカウントとの連携は、下記マニュアルの手順に沿ってお客様ご自身で設定していただきます。
+      </p>
+      <p style={{ marginBottom: 24 }}>
+        <a href="/guide/line-setup">LINE連携設定マニュアルを見る</a>
       </p>
       <a href="/dashboard/login">ログイン画面へ</a>
     </div>
