@@ -70,7 +70,6 @@ function useEditableJob(job: JobRow) {
     invoiceAmount: job.invoiceAmount?.toString() ?? "",
     invoiceNote: job.invoiceNote ?? "",
   });
-  const [calendarEventId, setCalendarEventId] = useState(job.calendarEventId);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -100,8 +99,6 @@ function useEditableJob(job: JobRow) {
     });
     setSaving(false);
     if (res.ok) {
-      const body = await res.json();
-      setCalendarEventId(body.job.calendarEventId);
       setSavedAt(Date.now());
     }
   }
@@ -131,7 +128,6 @@ function useEditableJob(job: JobRow) {
   return {
     values,
     set,
-    calendarEventId,
     saving,
     savedAt,
     handleSave,
@@ -203,19 +199,21 @@ function ReportSummary({ job }: { job: JobRow }) {
     <>
       {job.reportPhotoUrl && (
         <a href={job.reportPhotoUrl} target="_blank" rel="noreferrer">
-          <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 48, display: "block" }} />
+          <img src={job.reportPhotoUrl} alt="作業完了写真" style={{ height: 120, display: "block" }} />
         </a>
       )}
       {job.reportWorkerName && (
-        <div style={{ fontSize: 12, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
+        <div style={{ fontSize: 14, marginTop: 4 }}>担当: {job.reportWorkerName}</div>
       )}
       {workDate && (
-        <div style={{ fontSize: 12, color: "#555" }}>
+        <div style={{ fontSize: 14, color: "#555" }}>
           {workDate} {startTime ?? "?"} 〜 {endTime ?? "?"}
         </div>
       )}
       {job.reportComment && (
-        <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>{job.reportComment}</div>
+        <div style={{ fontSize: 14, color: "#555", marginTop: 4, whiteSpace: "pre-wrap" }}>
+          {job.reportComment}
+        </div>
       )}
     </>
   );
@@ -290,7 +288,6 @@ function EditableRow({ job }: { job: JobRow }) {
   const {
     values,
     set,
-    calendarEventId,
     saving,
     savedAt,
     handleSave,
@@ -340,8 +337,7 @@ function EditableRow({ job }: { job: JobRow }) {
           "-"
         )}
       </td>
-      <td style={{ padding: 8 }}>{calendarEventId ? "登録済み" : "-"}</td>
-      <td style={{ padding: 8, maxWidth: 220 }}>
+      <td style={{ padding: 8, minWidth: 260 }}>
         <ReportSummary job={job} />
       </td>
       <td style={{ padding: 8, minWidth: 100 }}>
@@ -406,7 +402,6 @@ function JobCard({ job }: { job: JobRow }) {
   const {
     values,
     set,
-    calendarEventId,
     saving,
     savedAt,
     handleSave,
@@ -463,7 +458,6 @@ function JobCard({ job }: { job: JobRow }) {
           "-"
         )}
       </Field>
-      <Field label="カレンダー">{calendarEventId ? "登録済み" : "-"}</Field>
       <Field label="作業報告">
         <ReportSummary job={job} />
       </Field>
@@ -531,7 +525,6 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
               <th style={{ padding: 8 }}>工事内容</th>
               <th style={{ padding: 8 }}>訪問予定日時</th>
               <th style={{ padding: 8 }}>写真</th>
-              <th style={{ padding: 8 }}>カレンダー</th>
               <th style={{ padding: 8 }}>作業報告</th>
               <th style={{ padding: 8 }}>見積額</th>
               <th style={{ padding: 8 }}>請求額</th>
