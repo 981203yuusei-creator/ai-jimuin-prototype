@@ -4,9 +4,9 @@ import { getSupabase } from "./supabase";
 export type Company = {
   id: string;
   name: string;
-  lineChannelId: string;
-  lineChannelSecret: string;
-  lineChannelAccessToken: string;
+  lineChannelId: string | null;
+  lineChannelSecret: string | null;
+  lineChannelAccessToken: string | null;
   calendarId: string | null;
   dashboardUsername: string;
   dashboardPasswordHash: string;
@@ -16,6 +16,9 @@ export type Company = {
   contactAddress: string | null;
   contactPhone: string | null;
   invoiceRegistrationNumber: string | null;
+  subscriptionStatus: string;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -34,6 +37,9 @@ function mapRow(data: any): Company {
     contactAddress: data.contact_address,
     contactPhone: data.contact_phone,
     invoiceRegistrationNumber: data.invoice_registration_number,
+    subscriptionStatus: data.subscription_status,
+    stripeCustomerId: data.stripe_customer_id,
+    stripeSubscriptionId: data.stripe_subscription_id,
   };
 }
 
@@ -77,6 +83,110 @@ export async function getCompanyById(id: string): Promise<Company | null> {
     return null;
   }
   return data ? mapRow(data) : null;
+}
+
+export async function createPendingCompany(fields: {
+  name: string;
+  dashboardUsername: string;
+  dashboardPasswordHash: string;
+  email: string;
+}): Promise<Company | null> {
+  const { data, error } = await getSupabase()
+    .from("companies")
+    .insert({
+      name: fields.name,
+      dashboard_username: fields.dashboardUsername,
+      dashboard_password_hash: fields.dashboardPasswordHash,
+      email: fields.email,
+      subscription_status: "pending",
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("createPendingCompany failed:", error);
+    return null;
+  }
+  return data ? mapRow(data) : null;
+}
+
+export async function getCompanyByStripeSubscriptionId(
+  stripeSubscriptionId: string
+): Promise<Company | null> {
+  const { data, error } = await getSupabase()
+    .from("companies")
+    .select("*")
+    .eq("stripe_subscription_id", stripeSubscriptionId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getCompanyByStripeSubscriptionId failed:", error);
+    return null;
+  }
+  return data ? mapRow(data) : null;
+}
+
+export async function activateSubscription(
+  companyId: string,
+  stripeCustomerId: string,
+  stripeSubscriptionId: string
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({
+      subscription_status: "active",
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: stripeSubscriptionId,
+    })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("activateSubscription failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function updateSubscriptionStatus(
+  stripeSubscriptionId: string,
+  status: string
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ subscription_status: status })
+    .eq("stripe_subscription_id", stripeSubscriptionId);
+
+  if (error) {
+    console.error("updateSubscriptionStatus failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function updateLineIntegration(
+  companyId: string,
+  fields: {
+    lineChannelId: string;
+    lineChannelSecret: string;
+    lineChannelAccessToken: string;
+    calendarId: string;
+  }
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({
+      line_channel_id: fields.lineChannelId || null,
+      line_channel_secret: fields.lineChannelSecret || null,
+      line_channel_access_token: fields.lineChannelAccessToken || null,
+      calendar_id: fields.calendarId || null,
+    })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("updateLineIntegration failed:", error);
+    return false;
+  }
+  return true;
 }
 
 export async function generateOwnerRegistrationCode(companyId: string): Promise<string | null> {

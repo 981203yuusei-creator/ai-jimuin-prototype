@@ -38,5 +38,6 @@ export const config = {
     "/api/dashboard/email",
     "/api/dashboard/profile",
     "/api/dashboard/export",
+    "/api/dashboard/line-integration",
   ],
 };

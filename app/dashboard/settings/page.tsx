@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { getCompanyById } from "../../../lib/companies";
+import LineIntegrationSettings from "../LineIntegrationSettings";
 import NotifySettings from "../NotifySettings";
 import EmailSettings from "../EmailSettings";
 import CompanyProfileSettings from "../CompanyProfileSettings";
@@ -20,6 +21,13 @@ export default async function SettingsPage() {
         </div>
       </div>
 
+      <LineIntegrationSettings
+        initialLineChannelId={company?.lineChannelId ?? null}
+        initialLineChannelSecret={company?.lineChannelSecret ?? null}
+        initialLineChannelAccessToken={company?.lineChannelAccessToken ?? null}
+        initialCalendarId={company?.calendarId ?? null}
+      />
+
       <NotifySettings connected={!!company?.ownerLineUserId} />
 
       <EmailSettings currentEmail={company?.email ?? null} />
@@ -31,6 +39,17 @@ export default async function SettingsPage() {
       />
 
       <ChangePasswordForm />
+
+      <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #eee", fontSize: 12, color: "#999" }}>
+        <p>サポート窓口: 準備中</p>
+        <p style={{ marginTop: 4 }}>
+          <a href="/legal/terms">利用規約</a>
+          {" ・ "}
+          <a href="/legal/privacy">プライバシーポリシー</a>
+          {" ・ "}
+          <a href="/legal/tokushoho">特定商取引法に基づく表記</a>
+        </p>
+      </div>
     </div>
   );
 }

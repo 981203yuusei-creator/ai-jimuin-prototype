@@ -1,0 +1,116 @@
+"use client";
+
+import { useState } from "react";
+
+export default function SignupPage() {
+  const [companyName, setCompanyName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!agreed) {
+      setError("利用規約・プライバシーポリシーへの同意が必要です。");
+      return;
+    }
+
+    setSubmitting(true);
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ companyName, username, password, email }),
+    });
+    const body = await res.json();
+    setSubmitting(false);
+
+    if (!res.ok) {
+      setError(body.error ?? "登録に失敗しました");
+      return;
+    }
+
+    window.location.href = body.url;
+  }
+
+  const inputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
+
+  return (
+    <div style={{ maxWidth: 360, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
+      <h1 style={{ fontSize: 20, marginBottom: 8 }}>ジムアシに申し込む</h1>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>
+        月額¥9,800(税込)・クレジットカード決済・いつでも解約できます。
+      </p>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>会社名</label>
+          <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} style={inputStyle} />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+            ダッシュボードのログインユーザー名
+          </label>
+          <input value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+            パスワード(8文字以上)
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+            連絡先メールアドレス(パスワード再設定用)
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16, fontSize: 13 }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              style={{ marginTop: 3 }}
+            />
+            <span>
+              <a href="/legal/terms" target="_blank" rel="noreferrer">
+                利用規約
+              </a>
+              と
+              <a href="/legal/privacy" target="_blank" rel="noreferrer">
+                プライバシーポリシー
+              </a>
+              に同意します
+            </span>
+          </label>
+        </div>
+
+        {error && <p style={{ color: "red", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+
+        <button type="submit" disabled={submitting} style={{ width: "100%", padding: 10 }}>
+          {submitting ? "手続き中..." : "お支払い手続きへ進む"}
+        </button>
+      </form>
+
+      <p style={{ fontSize: 12, color: "#999", marginTop: 16 }}>
+        <a href="/legal/tokushoho">特定商取引法に基づく表記</a>
+      </p>
+    </div>
+  );
+}

@@ -18,6 +18,21 @@ export default async function DashboardPage() {
     listJobsForCompany(companyId),
   ]);
 
+  if (company && company.subscriptionStatus !== "active") {
+    return (
+      <div style={{ maxWidth: 400, margin: "80px auto", fontFamily: "sans-serif", padding: "0 16px", textAlign: "center" }}>
+        <h1 style={{ fontSize: 18, marginBottom: 16 }}>お支払いの確認待ちです</h1>
+        <p style={{ fontSize: 14, color: "#333" }}>
+          お支払いの確認が完了すると、自動的にダッシュボードをご利用いただけるようになります。
+          しばらく経っても表示されない場合はお問い合わせください。
+        </p>
+        <div style={{ marginTop: 24 }}>
+          <LogoutButton />
+        </div>
+      </div>
+    );
+  }
+
   const jobRows = await Promise.all(
     jobs.map(async (job) => ({
       ...job,
