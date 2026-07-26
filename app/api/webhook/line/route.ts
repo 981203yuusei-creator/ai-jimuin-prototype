@@ -30,7 +30,6 @@ function buildNewJobNotification(state: JobState, dashboardUrl: string): string 
     `お名前: ${state.name ?? "未確認"}`,
     `電話番号: ${state.phone ?? "未確認"}`,
     `住所: ${state.address ?? "未確認"}`,
-    `緊急度: ${state.urgency}`,
     "",
     `ダッシュボード: ${dashboardUrl}/dashboard`,
   ].join("\n");
@@ -138,7 +137,6 @@ export async function POST(req: NextRequest) {
           phone: openJob?.phone ?? null,
           address: openJob?.address ?? null,
           workType: openJob?.workType ?? null,
-          urgency: openJob?.urgency ?? "normal",
           photoPath: photoPath ?? openJob?.photoPath ?? null,
         };
 

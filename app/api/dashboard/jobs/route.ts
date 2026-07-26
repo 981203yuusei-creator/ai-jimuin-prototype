@@ -3,7 +3,6 @@ import { createManualJob, JobEditableFields } from "../../../../lib/jobsRepo";
 import { getCompanyById } from "../../../../lib/companies";
 import { registerJobToCalendar } from "../../../../lib/calendar";
 
-const URGENCY_VALUES = ["high", "normal", "low"];
 const STATUS_VALUES = ["collecting", "completed", "done"];
 
 function parseAmount(value: unknown): number | null {
@@ -24,7 +23,6 @@ export async function POST(req: NextRequest) {
     phone: body.phone?.trim() || null,
     address: body.address?.trim() || null,
     workType: body.workType?.trim() || null,
-    urgency: URGENCY_VALUES.includes(body.urgency) ? body.urgency : "normal",
     status: STATUS_VALUES.includes(body.status) ? body.status : "completed",
     scheduledAt: body.scheduledAt || null,
     quoteAmount: parseAmount(body.quoteAmount),
@@ -41,7 +39,6 @@ export async function POST(req: NextRequest) {
         phone: fields.phone,
         address: fields.address,
         workType: fields.workType,
-        urgency: fields.urgency as "high" | "normal" | "low",
         photoPath: null,
       },
       company?.calendarId ?? null,

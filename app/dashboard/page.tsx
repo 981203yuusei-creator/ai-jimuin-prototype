@@ -5,11 +5,7 @@ import { getSignedPhotoUrl } from "../../lib/storage";
 import LogoutButton from "./LogoutButton";
 import JobsTable from "./JobsTable";
 import AutoRefresh from "./AutoRefresh";
-import NotifySettings from "./NotifySettings";
 import AddJobForm from "./AddJobForm";
-import ChangePasswordForm from "./ChangePasswordForm";
-import EmailSettings from "./EmailSettings";
-import CompanyProfileSettings from "./CompanyProfileSettings";
 import StatsSummary from "./StatsSummary";
 
 export default async function DashboardPage() {
@@ -32,21 +28,13 @@ export default async function DashboardPage() {
       <AutoRefresh />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h1 style={{ fontSize: 20 }}>案件一覧{company ? ` - ${company.name}` : ""}</h1>
-        <LogoutButton />
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <a href="/dashboard/settings">設定</a>
+          <LogoutButton />
+        </div>
       </div>
 
       <StatsSummary jobs={jobs} />
-
-      <NotifySettings connected={!!company?.ownerLineUserId} />
-
-      <EmailSettings currentEmail={company?.email ?? null} />
-
-      <CompanyProfileSettings
-        initialAddress={company?.contactAddress ?? null}
-        initialPhone={company?.contactPhone ?? null}
-      />
-
-      <ChangePasswordForm />
 
       <AddJobForm />
 

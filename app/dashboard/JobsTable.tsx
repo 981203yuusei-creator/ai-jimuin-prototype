@@ -9,7 +9,6 @@ export type JobRow = {
   phone: string | null;
   address: string | null;
   workType: string | null;
-  urgency: string;
   status: string;
   calendarEventId: string | null;
   createdAt: string;
@@ -45,12 +44,6 @@ function formatJstTime(value: string | null): string | null {
     : null;
 }
 
-const URGENCY_OPTIONS = [
-  { value: "high", label: "急ぎ" },
-  { value: "normal", label: "通常" },
-  { value: "low", label: "低" },
-];
-
 const STATUS_OPTIONS = [
   { value: "collecting", label: "受付中" },
   { value: "completed", label: "受付完了(対応待ち)" },
@@ -70,7 +63,6 @@ function useEditableJob(job: JobRow) {
     phone: job.phone ?? "",
     address: job.address ?? "",
     workType: job.workType ?? "",
-    urgency: job.urgency,
     status: job.status,
     scheduledDate: initialSchedule.date,
     scheduledTime: initialSchedule.time,
@@ -98,7 +90,6 @@ function useEditableJob(job: JobRow) {
         phone: values.phone,
         address: values.address,
         workType: values.workType,
-        urgency: values.urgency,
         status: values.status,
         scheduledAt: combineJstDateTime(values.scheduledDate, values.scheduledTime),
         quoteAmount: values.quoteAmount,
@@ -277,7 +268,6 @@ function EditableRow({ job }: { job: JobRow }) {
   const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
     useEditableJob(job);
   const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
-  const selectStyle = { ...inputStyle, minWidth: 90 };
 
   if (deleted) return null;
 
@@ -300,19 +290,6 @@ function EditableRow({ job }: { job: JobRow }) {
       </td>
       <td style={{ padding: 8 }}>
         <input value={values.workType} onChange={(e) => set("workType", e.target.value)} style={inputStyle} />
-      </td>
-      <td style={{ padding: 8, minWidth: 80 }}>
-        <select
-          value={values.urgency}
-          onChange={(e) => set("urgency", e.target.value)}
-          style={selectStyle}
-        >
-          {URGENCY_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
       </td>
       <td style={{ padding: 8, minWidth: 160 }}>
         <ScheduleInputs
@@ -426,19 +403,6 @@ function JobCard({ job }: { job: JobRow }) {
           style={cardInputStyle}
         />
       </Field>
-      <Field label="緊急度">
-        <select
-          value={values.urgency}
-          onChange={(e) => set("urgency", e.target.value)}
-          style={cardInputStyle}
-        >
-          {URGENCY_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </Field>
       <Field label="訪問予定日時">
         <ScheduleInputs
           date={values.scheduledDate}
@@ -523,7 +487,6 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
               <th style={{ padding: 8 }}>電話番号</th>
               <th style={{ padding: 8 }}>住所</th>
               <th style={{ padding: 8 }}>工事内容</th>
-              <th style={{ padding: 8 }}>緊急度</th>
               <th style={{ padding: 8 }}>訪問予定日時</th>
               <th style={{ padding: 8 }}>写真</th>
               <th style={{ padding: 8 }}>カレンダー</th>

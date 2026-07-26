@@ -7,7 +7,6 @@ export type JobState = {
   phone: string | null;
   address: string | null;
   workType: string | null;
-  urgency: "high" | "normal" | "low";
   photoPath: string | null;
 };
 
@@ -49,7 +48,6 @@ const systemPrompt = `
   "phone": string | null,
   "address": string | null,
   "workType": string | null,
-  "urgency": "high" | "normal" | "low",
   "replyMessage": string
 }
 `.trim();
@@ -59,7 +57,6 @@ const EMPTY_STATE: JobState = {
   phone: null,
   address: null,
   workType: null,
-  urgency: "normal",
   photoPath: null,
 };
 
@@ -82,7 +79,6 @@ export async function extractJobInfo(
     phone: previousState.phone,
     address: previousState.address,
     workType: previousState.workType,
-    urgency: previousState.urgency,
     photo: previousState.photoPath ? "受信済み" : "未受信",
   };
 
@@ -103,7 +99,6 @@ ${message}
     phone: parsed.phone ?? previousState.phone,
     address: parsed.address ?? previousState.address,
     workType: parsed.workType ?? previousState.workType,
-    urgency: parsed.urgency ?? previousState.urgency,
     photoPath: previousState.photoPath,
   };
 

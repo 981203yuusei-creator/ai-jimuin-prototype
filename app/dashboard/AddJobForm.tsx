@@ -4,12 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { combineJstDateTime } from "../../lib/time";
 
-const URGENCY_OPTIONS = [
-  { value: "high", label: "急ぎ" },
-  { value: "normal", label: "通常" },
-  { value: "low", label: "低" },
-];
-
 const STATUS_OPTIONS = [
   { value: "completed", label: "受付完了(対応待ち)" },
   { value: "done", label: "作業完了" },
@@ -20,7 +14,6 @@ const EMPTY = {
   phone: "",
   address: "",
   workType: "",
-  urgency: "normal",
   status: "completed",
   scheduledDate: "",
   scheduledTime: "",
@@ -61,7 +54,6 @@ export default function AddJobForm() {
       phone: body.phone ?? prev.phone,
       address: body.address ?? prev.address,
       workType: body.workType ?? prev.workType,
-      urgency: body.urgency ?? prev.urgency,
     }));
   }
 
@@ -76,7 +68,6 @@ export default function AddJobForm() {
         phone: values.phone,
         address: values.address,
         workType: values.workType,
-        urgency: values.urgency,
         status: values.status,
         scheduledAt: combineJstDateTime(values.scheduledDate, values.scheduledTime),
         quoteAmount: values.quoteAmount,
@@ -153,16 +144,6 @@ export default function AddJobForm() {
           onChange={(e) => set("workType", e.target.value)}
           style={inputStyle}
         />
-      </div>
-      <div style={{ marginTop: 10 }}>
-        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>緊急度</label>
-        <select value={values.urgency} onChange={(e) => set("urgency", e.target.value)} style={inputStyle}>
-          {URGENCY_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
       </div>
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>状態</label>

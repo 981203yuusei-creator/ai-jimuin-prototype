@@ -19,6 +19,5 @@ export async function POST(req: NextRequest) {
     phone: extracted.phone,
     address: extracted.address,
     workType: extracted.workType,
-    urgency: extracted.urgency,
   });
 }

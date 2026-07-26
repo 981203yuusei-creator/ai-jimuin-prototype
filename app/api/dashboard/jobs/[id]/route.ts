@@ -13,7 +13,6 @@ import {
 } from "../../../../../lib/calendar";
 import { deleteJobPhotos } from "../../../../../lib/storage";
 
-const URGENCY_VALUES = ["high", "normal", "low"];
 const STATUS_VALUES = ["collecting", "completed", "done"];
 
 function parseAmount(value: unknown): number | null {
@@ -39,7 +38,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     phone: body.phone?.trim() || null,
     address: body.address?.trim() || null,
     workType: body.workType?.trim() || null,
-    urgency: URGENCY_VALUES.includes(body.urgency) ? body.urgency : existing.urgency,
     status: STATUS_VALUES.includes(body.status) ? body.status : existing.status,
     scheduledAt: body.scheduledAt || null,
     quoteAmount: parseAmount(body.quoteAmount),
@@ -52,7 +50,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     phone: fields.phone,
     address: fields.address,
     workType: fields.workType,
-    urgency: fields.urgency as "high" | "normal" | "low",
     photoPath: existing.photoPath,
   };
 

@@ -14,11 +14,7 @@ function getAuth() {
 }
 
 function jobDescription(job: JobState): string {
-  return [
-    `電話番号: ${job.phone ?? "未確認"}`,
-    `住所: ${job.address ?? "未確認"}`,
-    `緊急度: ${job.urgency}`,
-  ].join("\n");
+  return [`電話番号: ${job.phone ?? "未確認"}`, `住所: ${job.address ?? "未確認"}`].join("\n");
 }
 
 export async function registerJobToCalendar(

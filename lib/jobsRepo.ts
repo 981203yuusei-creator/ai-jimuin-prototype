@@ -28,7 +28,6 @@ export async function getOpenJob(companyId: string, lineUserId: string): Promise
     phone: data.phone,
     address: data.address,
     workType: data.work_type,
-    urgency: data.urgency,
     photoPath: data.photo_path,
   };
 }
@@ -48,7 +47,6 @@ export async function saveJob(
     phone: state.phone,
     address: state.address,
     work_type: state.workType,
-    urgency: state.urgency,
     photo_path: state.photoPath,
     status: completed ? "completed" : "collecting",
     calendar_event_id: calendarEventId,
@@ -80,7 +78,6 @@ export type DashboardJob = {
   phone: string | null;
   address: string | null;
   workType: string | null;
-  urgency: string;
   status: string;
   photoPath: string | null;
   calendarEventId: string | null;
@@ -103,7 +100,6 @@ function mapDashboardJob(data: any): DashboardJob {
     phone: data.phone,
     address: data.address,
     workType: data.work_type,
-    urgency: data.urgency,
     status: data.status,
     photoPath: data.photo_path,
     calendarEventId: data.calendar_event_id,
@@ -154,7 +150,6 @@ export type JobEditableFields = {
   phone: string | null;
   address: string | null;
   workType: string | null;
-  urgency: string;
   status: string;
   scheduledAt: string | null;
   quoteAmount: number | null;
@@ -176,7 +171,6 @@ export async function createManualJob(
       phone: fields.phone,
       address: fields.address,
       work_type: fields.workType,
-      urgency: fields.urgency,
       status: fields.status,
       calendar_event_id: calendarEventId,
       scheduled_at: fields.scheduledAt,
@@ -207,7 +201,6 @@ export async function updateJobForCompany(
       phone: fields.phone,
       address: fields.address,
       work_type: fields.workType,
-      urgency: fields.urgency,
       status: fields.status,
       calendar_event_id: calendarEventId,
       scheduled_at: fields.scheduledAt,
