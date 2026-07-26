@@ -65,7 +65,10 @@ export async function rescheduleCalendarEvent(
 
   try {
     const calendar = google.calendar({ version: "v3", auth: getAuth() });
-    await calendar.events.patch({
+    // 終日イベント(date)から時刻指定イベント(dateTime)への変換は、events.patchだと
+    // 内部で古いdateフィールドと新しいdateTimeフィールドが競合し
+    // 「Invalid start time」で失敗するため、全体を置き換えるevents.updateを使う。
+    await calendar.events.update({
       calendarId,
       eventId,
       requestBody: {
