@@ -30,6 +30,9 @@ export default async function InvoicePage({
 
   const title = type === "invoice" ? "御請求書" : "御見積書";
   const amount = type === "invoice" ? job.invoiceAmount : job.quoteAmount;
+  const taxIncludedAmount = amount ?? 0;
+  const subtotal = Math.round(taxIncludedAmount / 1.1);
+  const tax = taxIncludedAmount - subtotal;
 
   return (
     <div style={{ maxWidth: 640, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
@@ -60,6 +63,9 @@ export default async function InvoicePage({
             <p style={{ marginTop: 12 }}>{company?.name ?? ""}</p>
             <p>{company?.contactAddress ?? ""}</p>
             <p>{company?.contactPhone ?? ""}</p>
+            {company?.invoiceRegistrationNumber && (
+              <p style={{ marginTop: 4 }}>登録番号: {company.invoiceRegistrationNumber}</p>
+            )}
           </div>
         </div>
 
@@ -98,6 +104,23 @@ export default async function InvoicePage({
             </tr>
           </tfoot>
         </table>
+
+        {amount !== null && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 24 }}>
+            <table style={{ fontSize: 13, color: "#333" }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: "2px 12px 2px 0" }}>10%対象 小計(税抜)</td>
+                  <td style={{ padding: "2px 0", textAlign: "right" }}>{formatYen(subtotal)}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "2px 12px 2px 0" }}>内消費税(10%)</td>
+                  <td style={{ padding: "2px 0", textAlign: "right" }}>{formatYen(tax)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {job.invoiceNote && (
           <div>

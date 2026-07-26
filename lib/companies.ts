@@ -15,6 +15,7 @@ export type Company = {
   email: string | null;
   contactAddress: string | null;
   contactPhone: string | null;
+  invoiceRegistrationNumber: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -32,6 +33,7 @@ function mapRow(data: any): Company {
     email: data.email,
     contactAddress: data.contact_address,
     contactPhone: data.contact_phone,
+    invoiceRegistrationNumber: data.invoice_registration_number,
   };
 }
 
@@ -132,11 +134,16 @@ export async function updateCompanyEmail(companyId: string, email: string): Prom
 export async function updateCompanyProfile(
   companyId: string,
   contactAddress: string,
-  contactPhone: string
+  contactPhone: string,
+  invoiceRegistrationNumber: string
 ): Promise<boolean> {
   const { error } = await getSupabase()
     .from("companies")
-    .update({ contact_address: contactAddress, contact_phone: contactPhone })
+    .update({
+      contact_address: contactAddress,
+      contact_phone: contactPhone,
+      invoice_registration_number: invoiceRegistrationNumber || null,
+    })
     .eq("id", companyId);
 
   if (error) {

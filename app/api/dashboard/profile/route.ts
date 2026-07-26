@@ -7,12 +7,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const { contactAddress, contactPhone } = await req.json();
+  const { contactAddress, contactPhone, invoiceRegistrationNumber } = await req.json();
 
   const ok = await updateCompanyProfile(
     companyId,
     (contactAddress ?? "").trim(),
-    (contactPhone ?? "").trim()
+    (contactPhone ?? "").trim(),
+    (invoiceRegistrationNumber ?? "").trim()
   );
   if (!ok) {
     return NextResponse.json({ error: "update failed" }, { status: 500 });

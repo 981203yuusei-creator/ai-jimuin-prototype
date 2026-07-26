@@ -5,12 +5,17 @@ import { useState } from "react";
 export default function CompanyProfileSettings({
   initialAddress,
   initialPhone,
+  initialInvoiceRegistrationNumber,
 }: {
   initialAddress: string | null;
   initialPhone: string | null;
+  initialInvoiceRegistrationNumber: string | null;
 }) {
   const [address, setAddress] = useState(initialAddress ?? "");
   const [phone, setPhone] = useState(initialPhone ?? "");
+  const [invoiceRegistrationNumber, setInvoiceRegistrationNumber] = useState(
+    initialInvoiceRegistrationNumber ?? ""
+  );
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
@@ -19,7 +24,11 @@ export default function CompanyProfileSettings({
     const res = await fetch("/api/dashboard/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contactAddress: address, contactPhone: phone }),
+      body: JSON.stringify({
+        contactAddress: address,
+        contactPhone: phone,
+        invoiceRegistrationNumber,
+      }),
     });
     setSaving(false);
     if (res.ok) setSavedAt(Date.now());
@@ -46,6 +55,17 @@ export default function CompanyProfileSettings({
       <div style={{ marginTop: 8 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>電話番号</label>
         <input value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} />
+      </div>
+      <div style={{ marginTop: 8 }}>
+        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+          インボイス登録番号(任意・適格請求書発行事業者の場合のみ)
+        </label>
+        <input
+          value={invoiceRegistrationNumber}
+          onChange={(e) => setInvoiceRegistrationNumber(e.target.value)}
+          placeholder="T1234567890123"
+          style={inputStyle}
+        />
       </div>
       <div style={{ marginTop: 8 }}>
         <button onClick={handleSave} disabled={saving}>

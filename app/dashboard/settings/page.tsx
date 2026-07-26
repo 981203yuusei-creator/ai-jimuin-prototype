@@ -27,6 +27,7 @@ export default async function SettingsPage() {
       <CompanyProfileSettings
         initialAddress={company?.contactAddress ?? null}
         initialPhone={company?.contactPhone ?? null}
+        initialInvoiceRegistrationNumber={company?.invoiceRegistrationNumber ?? null}
       />
 
       <ChangePasswordForm />

@@ -8,6 +8,7 @@ import AutoRefresh from "./AutoRefresh";
 import AddJobForm from "./AddJobForm";
 import StatsSummary from "./StatsSummary";
 import MonthlyStats from "./MonthlyStats";
+import YearlyStats from "./YearlyStats";
 import FontSizeControl from "./FontSizeControl";
 
 export default async function DashboardPage() {
@@ -39,7 +40,15 @@ export default async function DashboardPage() {
 
       <StatsSummary jobs={jobs} />
 
+      <YearlyStats jobs={jobs} />
+
       <MonthlyStats jobs={jobs} />
+
+      <div style={{ marginBottom: 16 }}>
+        <a href="/api/dashboard/export" style={{ fontSize: 14 }}>
+          📥 案件データをCSVでダウンロード(確定申告・会計ソフト用)
+        </a>
+      </div>
 
       <AddJobForm />
 

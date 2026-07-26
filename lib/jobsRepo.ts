@@ -249,7 +249,7 @@ export async function listJobsForCompany(companyId: string): Promise<DashboardJo
     .select("*")
     .eq("company_id", companyId)
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(5000);
 
   if (error) {
     console.error("listJobsForCompany failed:", error);
