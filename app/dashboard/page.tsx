@@ -7,6 +7,7 @@ import JobsTable from "./JobsTable";
 import AutoRefresh from "./AutoRefresh";
 import AddJobForm from "./AddJobForm";
 import StatsSummary from "./StatsSummary";
+import FontSizeControl from "./FontSizeControl";
 
 export default async function DashboardPage() {
   const companyId = headers().get("x-company-id") ?? "";
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h1 style={{ fontSize: 20 }}>案件一覧{company ? ` - ${company.name}` : ""}</h1>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <FontSizeControl />
           <a href="/dashboard/settings">設定</a>
           <LogoutButton />
         </div>
