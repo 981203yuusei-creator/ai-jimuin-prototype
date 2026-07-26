@@ -9,6 +9,8 @@ import NotifySettings from "./NotifySettings";
 import AddJobForm from "./AddJobForm";
 import ChangePasswordForm from "./ChangePasswordForm";
 import EmailSettings from "./EmailSettings";
+import CompanyProfileSettings from "./CompanyProfileSettings";
+import StatsSummary from "./StatsSummary";
 
 export default async function DashboardPage() {
   const companyId = headers().get("x-company-id") ?? "";
@@ -33,9 +35,16 @@ export default async function DashboardPage() {
         <LogoutButton />
       </div>
 
+      <StatsSummary jobs={jobs} />
+
       <NotifySettings connected={!!company?.ownerLineUserId} />
 
       <EmailSettings currentEmail={company?.email ?? null} />
+
+      <CompanyProfileSettings
+        initialAddress={company?.contactAddress ?? null}
+        initialPhone={company?.contactPhone ?? null}
+      />
 
       <ChangePasswordForm />
 

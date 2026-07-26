@@ -13,6 +13,8 @@ export type Company = {
   ownerLineUserId: string | null;
   ownerRegistrationCode: string | null;
   email: string | null;
+  contactAddress: string | null;
+  contactPhone: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -28,6 +30,8 @@ function mapRow(data: any): Company {
     ownerLineUserId: data.owner_line_user_id,
     ownerRegistrationCode: data.owner_registration_code,
     email: data.email,
+    contactAddress: data.contact_address,
+    contactPhone: data.contact_phone,
   };
 }
 
@@ -120,6 +124,23 @@ export async function updateCompanyEmail(companyId: string, email: string): Prom
 
   if (error) {
     console.error("updateCompanyEmail failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function updateCompanyProfile(
+  companyId: string,
+  contactAddress: string,
+  contactPhone: string
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ contact_address: contactAddress, contact_phone: contactPhone })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("updateCompanyProfile failed:", error);
     return false;
   }
   return true;

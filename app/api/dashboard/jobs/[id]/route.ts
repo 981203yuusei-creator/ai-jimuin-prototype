@@ -6,11 +6,21 @@ import {
   JobEditableFields,
 } from "../../../../../lib/jobsRepo";
 import { getCompanyById } from "../../../../../lib/companies";
-import { registerJobToCalendar, deleteCalendarEvent } from "../../../../../lib/calendar";
+import {
+  registerJobToCalendar,
+  rescheduleCalendarEvent,
+  deleteCalendarEvent,
+} from "../../../../../lib/calendar";
 import { deleteJobPhotos } from "../../../../../lib/storage";
 
 const URGENCY_VALUES = ["high", "normal", "low"];
 const STATUS_VALUES = ["collecting", "completed", "done"];
+
+function parseAmount(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const companyId = req.headers.get("x-company-id");
@@ -31,22 +41,32 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     workType: body.workType?.trim() || null,
     urgency: URGENCY_VALUES.includes(body.urgency) ? body.urgency : existing.urgency,
     status: STATUS_VALUES.includes(body.status) ? body.status : existing.status,
+    scheduledAt: body.scheduledAt || null,
+    quoteAmount: parseAmount(body.quoteAmount),
+    invoiceAmount: parseAmount(body.invoiceAmount),
+    invoiceNote: body.invoiceNote?.trim() || null,
+  };
+
+  const jobState = {
+    name: fields.name,
+    phone: fields.phone,
+    address: fields.address,
+    workType: fields.workType,
+    urgency: fields.urgency as "high" | "normal" | "low",
+    photoPath: existing.photoPath,
   };
 
   let calendarEventId = existing.calendarEventId;
+  const company =
+    (fields.status === "completed" || fields.status === "done") ||
+    (fields.scheduledAt && fields.scheduledAt !== existing.scheduledAt)
+      ? await getCompanyById(companyId)
+      : null;
+
   if ((fields.status === "completed" || fields.status === "done") && !calendarEventId) {
-    const company = await getCompanyById(companyId);
-    calendarEventId = await registerJobToCalendar(
-      {
-        name: fields.name,
-        phone: fields.phone,
-        address: fields.address,
-        workType: fields.workType,
-        urgency: fields.urgency as "high" | "normal" | "low",
-        photoPath: existing.photoPath,
-      },
-      company?.calendarId ?? null
-    );
+    calendarEventId = await registerJobToCalendar(jobState, company?.calendarId ?? null, fields.scheduledAt);
+  } else if (calendarEventId && fields.scheduledAt && fields.scheduledAt !== existing.scheduledAt) {
+    await rescheduleCalendarEvent(company?.calendarId ?? null, calendarEventId, jobState, fields.scheduledAt);
   }
 
   const updated = await updateJobForCompany(companyId, params.id, fields, calendarEventId);

@@ -90,6 +90,10 @@ export type DashboardJob = {
   reportWorkerName: string | null;
   reportStartedAt: string | null;
   reportCompletedAt: string | null;
+  scheduledAt: string | null;
+  quoteAmount: number | null;
+  invoiceAmount: number | null;
+  invoiceNote: string | null;
 };
 
 function mapDashboardJob(data: any): DashboardJob {
@@ -109,6 +113,10 @@ function mapDashboardJob(data: any): DashboardJob {
     reportWorkerName: data.report_worker_name,
     reportStartedAt: data.report_started_at,
     reportCompletedAt: data.report_completed_at,
+    scheduledAt: data.scheduled_at,
+    quoteAmount: data.quote_amount,
+    invoiceAmount: data.invoice_amount,
+    invoiceNote: data.invoice_note,
   };
 }
 
@@ -148,6 +156,10 @@ export type JobEditableFields = {
   workType: string | null;
   urgency: string;
   status: string;
+  scheduledAt: string | null;
+  quoteAmount: number | null;
+  invoiceAmount: number | null;
+  invoiceNote: string | null;
 };
 
 export async function createManualJob(
@@ -167,6 +179,10 @@ export async function createManualJob(
       urgency: fields.urgency,
       status: fields.status,
       calendar_event_id: calendarEventId,
+      scheduled_at: fields.scheduledAt,
+      quote_amount: fields.quoteAmount,
+      invoice_amount: fields.invoiceAmount,
+      invoice_note: fields.invoiceNote,
     })
     .select()
     .maybeSingle();
@@ -194,6 +210,10 @@ export async function updateJobForCompany(
       urgency: fields.urgency,
       status: fields.status,
       calendar_event_id: calendarEventId,
+      scheduled_at: fields.scheduledAt,
+      quote_amount: fields.quoteAmount,
+      invoice_amount: fields.invoiceAmount,
+      invoice_note: fields.invoiceNote,
       updated_at: new Date().toISOString(),
     })
     .eq("company_id", companyId)

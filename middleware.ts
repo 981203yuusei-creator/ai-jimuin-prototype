@@ -36,5 +36,6 @@ export const config = {
     "/api/dashboard/extract",
     "/api/dashboard/change-password",
     "/api/dashboard/email",
+    "/api/dashboard/profile",
   ],
 };

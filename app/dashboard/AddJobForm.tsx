@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { combineJstDateTime } from "../../lib/time";
 
 const URGENCY_OPTIONS = [
   { value: "high", label: "急ぎ" },
@@ -14,7 +15,17 @@ const STATUS_OPTIONS = [
   { value: "done", label: "作業完了" },
 ];
 
-const EMPTY = { name: "", phone: "", address: "", workType: "", urgency: "normal", status: "completed" };
+const EMPTY = {
+  name: "",
+  phone: "",
+  address: "",
+  workType: "",
+  urgency: "normal",
+  status: "completed",
+  scheduledDate: "",
+  scheduledTime: "",
+  quoteAmount: "",
+};
 
 export default function AddJobForm() {
   const router = useRouter();
@@ -60,7 +71,16 @@ export default function AddJobForm() {
     const res = await fetch("/api/dashboard/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        name: values.name,
+        phone: values.phone,
+        address: values.address,
+        workType: values.workType,
+        urgency: values.urgency,
+        status: values.status,
+        scheduledAt: combineJstDateTime(values.scheduledDate, values.scheduledTime),
+        quoteAmount: values.quoteAmount,
+      }),
     });
     setSubmitting(false);
     if (res.ok) {
@@ -153,6 +173,36 @@ export default function AddJobForm() {
             </option>
           ))}
         </select>
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+          訪問予定日時(任意)
+        </label>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            type="date"
+            value={values.scheduledDate}
+            onChange={(e) => set("scheduledDate", e.target.value)}
+            style={inputStyle}
+          />
+          <input
+            type="time"
+            value={values.scheduledTime}
+            onChange={(e) => set("scheduledTime", e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+          見積金額(円・任意)
+        </label>
+        <input
+          type="number"
+          value={values.quoteAmount}
+          onChange={(e) => set("quoteAmount", e.target.value)}
+          style={inputStyle}
+        />
       </div>
       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
         <button type="submit" disabled={submitting}>

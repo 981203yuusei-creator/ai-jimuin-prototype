@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { splitJstDateTime, combineJstDateTime } from "../../lib/time";
 
 export type JobRow = {
   id: string;
@@ -18,6 +19,10 @@ export type JobRow = {
   reportWorkerName: string | null;
   reportStartedAt: string | null;
   reportCompletedAt: string | null;
+  scheduledAt: string | null;
+  quoteAmount: number | null;
+  invoiceAmount: number | null;
+  invoiceNote: string | null;
 };
 
 function formatJstDate(value: string | null): string | null {
@@ -59,6 +64,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 function useEditableJob(job: JobRow) {
+  const initialSchedule = splitJstDateTime(job.scheduledAt);
   const [values, setValues] = useState({
     name: job.name ?? "",
     phone: job.phone ?? "",
@@ -66,6 +72,11 @@ function useEditableJob(job: JobRow) {
     workType: job.workType ?? "",
     urgency: job.urgency,
     status: job.status,
+    scheduledDate: initialSchedule.date,
+    scheduledTime: initialSchedule.time,
+    quoteAmount: job.quoteAmount?.toString() ?? "",
+    invoiceAmount: job.invoiceAmount?.toString() ?? "",
+    invoiceNote: job.invoiceNote ?? "",
   });
   const [calendarEventId, setCalendarEventId] = useState(job.calendarEventId);
   const [saving, setSaving] = useState(false);
@@ -82,7 +93,18 @@ function useEditableJob(job: JobRow) {
     const res = await fetch(`/api/dashboard/jobs/${job.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        name: values.name,
+        phone: values.phone,
+        address: values.address,
+        workType: values.workType,
+        urgency: values.urgency,
+        status: values.status,
+        scheduledAt: combineJstDateTime(values.scheduledDate, values.scheduledTime),
+        quoteAmount: values.quoteAmount,
+        invoiceAmount: values.invoiceAmount,
+        invoiceNote: values.invoiceNote,
+      }),
     });
     setSaving(false);
     if (res.ok) {
@@ -125,6 +147,33 @@ function OpenReportButton({ jobId }: { jobId: string }) {
     >
       報告書を開く
     </a>
+  );
+}
+
+function InvoiceLinks({ jobId }: { jobId: string }) {
+  const linkStyle = {
+    display: "inline-block",
+    padding: "6px 12px",
+    border: "1px solid #999",
+    borderRadius: 4,
+    whiteSpace: "nowrap" as const,
+    textDecoration: "none",
+    color: "inherit",
+  };
+  return (
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+      <a href={`/dashboard/invoice/${jobId}?type=quote`} target="_blank" rel="noreferrer" style={linkStyle}>
+        見積書
+      </a>
+      <a
+        href={`/dashboard/invoice/${jobId}?type=invoice`}
+        target="_blank"
+        rel="noreferrer"
+        style={linkStyle}
+      >
+        請求書
+      </a>
+    </div>
   );
 }
 
@@ -193,6 +242,37 @@ function StatusSelect({
   );
 }
 
+function ScheduleInputs({
+  date,
+  time,
+  onDateChange,
+  onTimeChange,
+  style,
+}: {
+  date: string;
+  time: string;
+  onDateChange: (v: string) => void;
+  onTimeChange: (v: string) => void;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div style={{ display: "flex", gap: 4, ...style }}>
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => onDateChange(e.target.value)}
+        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 0 }}
+      />
+      <input
+        type="time"
+        value={time}
+        onChange={(e) => onTimeChange(e.target.value)}
+        style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 0 }}
+      />
+    </div>
+  );
+}
+
 function EditableRow({ job }: { job: JobRow }) {
   const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
     useEditableJob(job);
@@ -234,6 +314,14 @@ function EditableRow({ job }: { job: JobRow }) {
           ))}
         </select>
       </td>
+      <td style={{ padding: 8, minWidth: 160 }}>
+        <ScheduleInputs
+          date={values.scheduledDate}
+          time={values.scheduledTime}
+          onDateChange={(v) => set("scheduledDate", v)}
+          onTimeChange={(v) => set("scheduledTime", v)}
+        />
+      </td>
       <td style={{ padding: 8 }}>
         {job.photoUrl ? (
           <a href={job.photoUrl} target="_blank" rel="noreferrer">
@@ -247,8 +335,37 @@ function EditableRow({ job }: { job: JobRow }) {
       <td style={{ padding: 8, maxWidth: 220 }}>
         <ReportSummary job={job} />
       </td>
+      <td style={{ padding: 8, minWidth: 100 }}>
+        <input
+          type="number"
+          value={values.quoteAmount}
+          onChange={(e) => set("quoteAmount", e.target.value)}
+          placeholder="見積額"
+          style={inputStyle}
+        />
+      </td>
+      <td style={{ padding: 8, minWidth: 100 }}>
+        <input
+          type="number"
+          value={values.invoiceAmount}
+          onChange={(e) => set("invoiceAmount", e.target.value)}
+          placeholder="請求額"
+          style={inputStyle}
+        />
+      </td>
+      <td style={{ padding: 8, minWidth: 140 }}>
+        <input
+          value={values.invoiceNote}
+          onChange={(e) => set("invoiceNote", e.target.value)}
+          placeholder="備考"
+          style={inputStyle}
+        />
+      </td>
       <td style={{ padding: 8 }}>
         <OpenReportButton jobId={job.id} />
+      </td>
+      <td style={{ padding: 8 }}>
+        <InvoiceLinks jobId={job.id} />
       </td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         <button onClick={handleSave} disabled={saving}>
@@ -322,6 +439,15 @@ function JobCard({ job }: { job: JobRow }) {
           ))}
         </select>
       </Field>
+      <Field label="訪問予定日時">
+        <ScheduleInputs
+          date={values.scheduledDate}
+          time={values.scheduledTime}
+          onDateChange={(v) => set("scheduledDate", v)}
+          onTimeChange={(v) => set("scheduledTime", v)}
+          style={{ width: "100%" }}
+        />
+      </Field>
       <Field label="写真">
         {job.photoUrl ? (
           <a href={job.photoUrl} target="_blank" rel="noreferrer">
@@ -335,8 +461,35 @@ function JobCard({ job }: { job: JobRow }) {
       <Field label="作業報告">
         <ReportSummary job={job} />
       </Field>
+      <Field label="見積金額(円)">
+        <input
+          type="number"
+          value={values.quoteAmount}
+          onChange={(e) => set("quoteAmount", e.target.value)}
+          style={cardInputStyle}
+        />
+      </Field>
+      <Field label="請求金額(円)">
+        <input
+          type="number"
+          value={values.invoiceAmount}
+          onChange={(e) => set("invoiceAmount", e.target.value)}
+          style={cardInputStyle}
+        />
+      </Field>
+      <Field label="備考(見積書・請求書に表示)">
+        <textarea
+          value={values.invoiceNote}
+          onChange={(e) => set("invoiceNote", e.target.value)}
+          rows={2}
+          style={cardInputStyle}
+        />
+      </Field>
       <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
         <OpenReportButton jobId={job.id} />
+        <InvoiceLinks jobId={job.id} />
+      </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
         <button onClick={handleSave} disabled={saving} style={{ padding: "6px 12px" }}>
           {saving ? "保存中..." : "保存"}
         </button>
@@ -371,9 +524,14 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
               <th style={{ padding: 8 }}>住所</th>
               <th style={{ padding: 8 }}>工事内容</th>
               <th style={{ padding: 8 }}>緊急度</th>
+              <th style={{ padding: 8 }}>訪問予定日時</th>
               <th style={{ padding: 8 }}>写真</th>
               <th style={{ padding: 8 }}>カレンダー</th>
               <th style={{ padding: 8 }}>作業報告</th>
+              <th style={{ padding: 8 }}>見積額</th>
+              <th style={{ padding: 8 }}>請求額</th>
+              <th style={{ padding: 8 }}>備考</th>
+              <th style={{ padding: 8 }}></th>
               <th style={{ padding: 8 }}></th>
               <th style={{ padding: 8 }}></th>
             </tr>

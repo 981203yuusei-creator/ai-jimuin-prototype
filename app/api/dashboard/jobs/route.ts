@@ -6,6 +6,12 @@ import { registerJobToCalendar } from "../../../../lib/calendar";
 const URGENCY_VALUES = ["high", "normal", "low"];
 const STATUS_VALUES = ["collecting", "completed", "done"];
 
+function parseAmount(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 export async function POST(req: NextRequest) {
   const companyId = req.headers.get("x-company-id");
   if (!companyId) {
@@ -20,6 +26,10 @@ export async function POST(req: NextRequest) {
     workType: body.workType?.trim() || null,
     urgency: URGENCY_VALUES.includes(body.urgency) ? body.urgency : "normal",
     status: STATUS_VALUES.includes(body.status) ? body.status : "completed",
+    scheduledAt: body.scheduledAt || null,
+    quoteAmount: parseAmount(body.quoteAmount),
+    invoiceAmount: parseAmount(body.invoiceAmount),
+    invoiceNote: body.invoiceNote?.trim() || null,
   };
 
   let calendarEventId: string | null = null;
@@ -34,7 +44,8 @@ export async function POST(req: NextRequest) {
         urgency: fields.urgency as "high" | "normal" | "low",
         photoPath: null,
       },
-      company?.calendarId ?? null
+      company?.calendarId ?? null,
+      fields.scheduledAt
     );
   }
 
