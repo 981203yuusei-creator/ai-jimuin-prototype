@@ -127,6 +127,20 @@ export async function getJobForCompany(companyId: string, jobId: string): Promis
   return data ? mapDashboardJob(data) : null;
 }
 
+export async function deleteJobForCompany(companyId: string, jobId: string): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("jobs")
+    .delete()
+    .eq("company_id", companyId)
+    .eq("id", jobId);
+
+  if (error) {
+    console.error("deleteJobForCompany failed:", error);
+    return false;
+  }
+  return true;
+}
+
 export type JobEditableFields = {
   name: string | null;
   phone: string | null;

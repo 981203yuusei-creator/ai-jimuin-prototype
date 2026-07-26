@@ -96,3 +96,19 @@ export async function confirmOwnerRegistration(companyId: string, lineUserId: st
     console.error("confirmOwnerRegistration failed:", error);
   }
 }
+
+export async function updateDashboardPasswordHash(
+  companyId: string,
+  passwordHash: string
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ dashboard_password_hash: passwordHash })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("updateDashboardPasswordHash failed:", error);
+    return false;
+  }
+  return true;
+}

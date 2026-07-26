@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getJobForCompany, updateJobForCompany, JobEditableFields } from "../../../../../lib/jobsRepo";
+import {
+  getJobForCompany,
+  updateJobForCompany,
+  deleteJobForCompany,
+  JobEditableFields,
+} from "../../../../../lib/jobsRepo";
 import { getCompanyById } from "../../../../../lib/companies";
-import { registerJobToCalendar } from "../../../../../lib/calendar";
+import { registerJobToCalendar, deleteCalendarEvent } from "../../../../../lib/calendar";
+import { deleteJobPhotos } from "../../../../../lib/storage";
 
 const URGENCY_VALUES = ["high", "normal", "low"];
 const STATUS_VALUES = ["collecting", "completed", "done"];
@@ -49,4 +55,29 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   return NextResponse.json({ job: updated });
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const companyId = req.headers.get("x-company-id");
+  if (!companyId) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const existing = await getJobForCompany(companyId, params.id);
+  if (!existing) {
+    return NextResponse.json({ error: "not found" }, { status: 404 });
+  }
+
+  if (existing.calendarEventId) {
+    const company = await getCompanyById(companyId);
+    await deleteCalendarEvent(company?.calendarId ?? null, existing.calendarEventId);
+  }
+  await deleteJobPhotos([existing.photoPath, existing.reportPhotoPath]);
+
+  const ok = await deleteJobForCompany(companyId, params.id);
+  if (!ok) {
+    return NextResponse.json({ error: "delete failed" }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

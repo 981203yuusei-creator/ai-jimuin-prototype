@@ -70,6 +70,8 @@ function useEditableJob(job: JobRow) {
   const [calendarEventId, setCalendarEventId] = useState(job.calendarEventId);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   function set<K extends keyof typeof values>(key: K, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -90,7 +92,19 @@ function useEditableJob(job: JobRow) {
     }
   }
 
-  return { values, set, calendarEventId, saving, savedAt, handleSave };
+  async function handleDelete() {
+    const label = [values.name, values.workType].filter(Boolean).join(" / ") || "この案件";
+    if (!confirm(`${label}を削除します。この操作は取り消せません。よろしいですか?`)) return;
+
+    setDeleting(true);
+    const res = await fetch(`/api/dashboard/jobs/${job.id}`, { method: "DELETE" });
+    setDeleting(false);
+    if (res.ok) {
+      setDeleted(true);
+    }
+  }
+
+  return { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete };
 }
 
 function OpenReportButton({ jobId }: { jobId: string }) {
@@ -180,9 +194,12 @@ function StatusSelect({
 }
 
 function EditableRow({ job }: { job: JobRow }) {
-  const { values, set, calendarEventId, saving, savedAt, handleSave } = useEditableJob(job);
+  const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
+    useEditableJob(job);
   const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
   const selectStyle = { ...inputStyle, minWidth: 90 };
+
+  if (deleted) return null;
 
   return (
     <tr style={{ borderBottom: "1px solid #eee" }}>
@@ -238,6 +255,13 @@ function EditableRow({ job }: { job: JobRow }) {
           {saving ? "保存中..." : "保存"}
         </button>
         {savedAt && <span style={{ marginLeft: 6, color: "green" }}>✓</span>}
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{ marginLeft: 6, color: "#b91c1c" }}
+        >
+          {deleting ? "削除中..." : "削除"}
+        </button>
       </td>
     </tr>
   );
@@ -253,8 +277,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function JobCard({ job }: { job: JobRow }) {
-  const { values, set, calendarEventId, saving, savedAt, handleSave } = useEditableJob(job);
+  const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
+    useEditableJob(job);
   const cardInputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
+
+  if (deleted) return null;
 
   return (
     <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
@@ -308,12 +335,19 @@ function JobCard({ job }: { job: JobRow }) {
       <Field label="作業報告">
         <ReportSummary job={job} />
       </Field>
-      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+      <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
         <OpenReportButton jobId={job.id} />
         <button onClick={handleSave} disabled={saving} style={{ padding: "6px 12px" }}>
           {saving ? "保存中..." : "保存"}
         </button>
         {savedAt && <span style={{ color: "green", alignSelf: "center" }}>✓</span>}
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          style={{ padding: "6px 12px", color: "#b91c1c" }}
+        >
+          {deleting ? "削除中..." : "削除"}
+        </button>
       </div>
     </div>
   );

@@ -47,3 +47,17 @@ export async function registerJobToCalendar(
     return null;
   }
 }
+
+export async function deleteCalendarEvent(
+  calendarId: string | null,
+  eventId: string | null
+): Promise<void> {
+  if (!calendarId || !eventId) return;
+
+  try {
+    const calendar = google.calendar({ version: "v3", auth: getAuth() });
+    await calendar.events.delete({ calendarId, eventId });
+  } catch (err) {
+    console.error("Google Calendar削除失敗:", err);
+  }
+}

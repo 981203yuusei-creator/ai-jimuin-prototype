@@ -28,5 +28,6 @@ export const config = {
     "/api/dashboard/jobs/:path*",
     "/api/dashboard/notify-code",
     "/api/dashboard/extract",
+    "/api/dashboard/change-password",
   ],
 };

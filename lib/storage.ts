@@ -41,6 +41,16 @@ export async function uploadReportPhoto(
   return path;
 }
 
+export async function deleteJobPhotos(paths: (string | null)[]): Promise<void> {
+  const validPaths = paths.filter((p): p is string => !!p);
+  if (validPaths.length === 0) return;
+
+  const { error } = await getSupabase().storage.from(BUCKET).remove(validPaths);
+  if (error) {
+    console.error("deleteJobPhotos failed:", error);
+  }
+}
+
 export async function getSignedPhotoUrl(path: string): Promise<string | null> {
   const { data, error } = await getSupabase()
     .storage.from(BUCKET)
