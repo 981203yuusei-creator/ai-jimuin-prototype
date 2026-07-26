@@ -80,21 +80,22 @@ function useEditableJob(job: JobRow) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSave() {
+  async function save(overrides?: Partial<typeof values>) {
+    const current = { ...values, ...overrides };
     setSaving(true);
     const res = await fetch(`/api/dashboard/jobs/${job.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: values.name,
-        phone: values.phone,
-        address: values.address,
-        workType: values.workType,
-        status: values.status,
-        scheduledAt: combineJstDateTime(values.scheduledDate, values.scheduledTime),
-        quoteAmount: values.quoteAmount,
-        invoiceAmount: values.invoiceAmount,
-        invoiceNote: values.invoiceNote,
+        name: current.name,
+        phone: current.phone,
+        address: current.address,
+        workType: current.workType,
+        status: current.status,
+        scheduledAt: combineJstDateTime(current.scheduledDate, current.scheduledTime),
+        quoteAmount: current.quoteAmount,
+        invoiceAmount: current.invoiceAmount,
+        invoiceNote: current.invoiceNote,
       }),
     });
     setSaving(false);
@@ -103,6 +104,16 @@ function useEditableJob(job: JobRow) {
       setCalendarEventId(body.job.calendarEventId);
       setSavedAt(Date.now());
     }
+  }
+
+  function handleSave() {
+    return save();
+  }
+
+  // ステータスは選択した瞬間に保存する(「保存」の押し忘れで元に戻ったように見える事故を防ぐ)。
+  function handleStatusChange(newStatus: string) {
+    set("status", newStatus);
+    save({ status: newStatus });
   }
 
   async function handleDelete() {
@@ -117,7 +128,18 @@ function useEditableJob(job: JobRow) {
     }
   }
 
-  return { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete };
+  return {
+    values,
+    set,
+    calendarEventId,
+    saving,
+    savedAt,
+    handleSave,
+    handleStatusChange,
+    deleting,
+    deleted,
+    handleDelete,
+  };
 }
 
 function OpenReportButton({ jobId }: { jobId: string }) {
@@ -265,8 +287,18 @@ function ScheduleInputs({
 }
 
 function EditableRow({ job }: { job: JobRow }) {
-  const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
-    useEditableJob(job);
+  const {
+    values,
+    set,
+    calendarEventId,
+    saving,
+    savedAt,
+    handleSave,
+    handleStatusChange,
+    deleting,
+    deleted,
+    handleDelete,
+  } = useEditableJob(job);
   const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
 
   if (deleted) return null;
@@ -277,7 +309,7 @@ function EditableRow({ job }: { job: JobRow }) {
         {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
       </td>
       <td style={{ padding: 8, minWidth: 140 }}>
-        <StatusSelect value={values.status} onChange={(v) => set("status", v)} style={{ minWidth: 90 }} />
+        <StatusSelect value={values.status} onChange={handleStatusChange} style={{ minWidth: 90 }} />
       </td>
       <td style={{ padding: 8, minWidth: 110 }}>
         <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
@@ -371,8 +403,18 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function JobCard({ job }: { job: JobRow }) {
-  const { values, set, calendarEventId, saving, savedAt, handleSave, deleting, deleted, handleDelete } =
-    useEditableJob(job);
+  const {
+    values,
+    set,
+    calendarEventId,
+    saving,
+    savedAt,
+    handleSave,
+    handleStatusChange,
+    deleting,
+    deleted,
+    handleDelete,
+  } = useEditableJob(job);
   const cardInputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
 
   if (deleted) return null;
@@ -385,7 +427,7 @@ function JobCard({ job }: { job: JobRow }) {
         </span>
       </div>
       <div style={{ marginTop: 8 }}>
-        <StatusSelect value={values.status} onChange={(v) => set("status", v)} style={{ width: "100%" }} />
+        <StatusSelect value={values.status} onChange={handleStatusChange} style={{ width: "100%" }} />
       </div>
       <Field label="お名前">
         <input value={values.name} onChange={(e) => set("name", e.target.value)} style={cardInputStyle} />
