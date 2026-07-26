@@ -12,6 +12,7 @@ export type Company = {
   dashboardPasswordHash: string;
   ownerLineUserId: string | null;
   ownerRegistrationCode: string | null;
+  email: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -26,6 +27,7 @@ function mapRow(data: any): Company {
     dashboardPasswordHash: data.dashboard_password_hash,
     ownerLineUserId: data.owner_line_user_id,
     ownerRegistrationCode: data.owner_registration_code,
+    email: data.email,
   };
 }
 
@@ -108,6 +110,65 @@ export async function updateDashboardPasswordHash(
 
   if (error) {
     console.error("updateDashboardPasswordHash failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function updateCompanyEmail(companyId: string, email: string): Promise<boolean> {
+  const { error } = await getSupabase().from("companies").update({ email }).eq("id", companyId);
+
+  if (error) {
+    console.error("updateCompanyEmail failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function setPasswordResetToken(
+  companyId: string,
+  token: string,
+  expiresAt: string
+): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ password_reset_token: token, password_reset_expires_at: expiresAt })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("setPasswordResetToken failed:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function getCompanyByValidResetToken(token: string): Promise<Company | null> {
+  const { data, error } = await getSupabase()
+    .from("companies")
+    .select("*")
+    .eq("password_reset_token", token)
+    .gt("password_reset_expires_at", new Date().toISOString())
+    .maybeSingle();
+
+  if (error) {
+    console.error("getCompanyByValidResetToken failed:", error);
+    return null;
+  }
+  return data ? mapRow(data) : null;
+}
+
+export async function resetPasswordWithToken(companyId: string, passwordHash: string): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({
+      dashboard_password_hash: passwordHash,
+      password_reset_token: null,
+      password_reset_expires_at: null,
+    })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("resetPasswordWithToken failed:", error);
     return false;
   }
   return true;

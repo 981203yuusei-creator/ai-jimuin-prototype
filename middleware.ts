@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionCookieValue, COOKIE_NAME } from "./lib/session";
 
+const PUBLIC_DASHBOARD_PATHS = [
+  "/dashboard/login",
+  "/dashboard/forgot-password",
+  "/dashboard/reset-password",
+];
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/dashboard/login") {
+  if (PUBLIC_DASHBOARD_PATHS.includes(pathname)) {
     return NextResponse.next();
   }
 
@@ -29,5 +35,6 @@ export const config = {
     "/api/dashboard/notify-code",
     "/api/dashboard/extract",
     "/api/dashboard/change-password",
+    "/api/dashboard/email",
   ],
 };

@@ -54,6 +54,9 @@ export default function LoginPage() {
           {loading ? "ログイン中..." : "ログイン"}
         </button>
       </form>
+      <p style={{ marginTop: 16 }}>
+        <a href="/dashboard/forgot-password">パスワードをお忘れですか?</a>
+      </p>
     </div>
   );
 }
