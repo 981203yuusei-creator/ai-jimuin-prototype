@@ -16,7 +16,7 @@ const FEATURES: { icon: (props: { size?: number; color?: string }) => JSX.Elemen
   {
     icon: ChatIcon,
     title: "LINEで自動受付",
-    body: "お客様がLINEで問い合わせるだけで、AIがお名前・電話番号・住所・工事内容を自動で聞き取り整理します。現場の写真も忘れずに促します。",
+    body: "お客様がLINEで問い合わせるだけで、AIがお名前・電話番号・住所・作業内容を自動で聞き取り整理します。現場の写真も忘れずに促します。",
   },
   {
     icon: PhoneIcon,
@@ -36,7 +36,7 @@ const FEATURES: { icon: (props: { size?: number; color?: string }) => JSX.Elemen
   {
     icon: ShareIcon,
     title: "作業員への指示共有",
-    body: "現場の住所・電話番号・工事内容をまとめた作業指示書を、ボタン一つでLINEなどから作業員に共有できます。",
+    body: "現場の住所・電話番号・作業内容をまとめた作業指示書を、ボタン一つでLINEなどから作業員に共有できます。",
   },
   {
     icon: ClipboardCheckIcon,
@@ -79,7 +79,7 @@ const JSON_LD = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "現場に集中。事務はAIに。LINEでのお客様対応・AIによる自動入力・スケジュール管理・見積書/請求書作成・確定申告対応まで、電気工事・水道工事の小規模事業者向け事務アシスタントSaaS。",
+    "現場に集中。事務はAIに。LINEでのお客様対応・AIによる自動入力・スケジュール管理・見積書/請求書作成・確定申告対応まで、工事・修理・点検・清掃などの小規模事業者向け事務アシスタントSaaS。",
   offers: {
     "@type": "Offer",
     price: "9800",
@@ -116,7 +116,7 @@ export default function Home() {
         <div className="hero-grid">
           <div style={{ textAlign: "left" }}>
             <p style={{ fontSize: 13, color: "#2563eb", fontWeight: 700, marginBottom: 12, letterSpacing: 0.5 }}>
-              電気工事・水道工事の小規模事業者向け
+              工事・修理・点検・清掃など、現場訪問サービス業の小規模事業者向け
             </p>
             <h1 style={{ fontSize: 38, fontWeight: 800, marginBottom: 16, lineHeight: 1.3 }}>
               現場に集中。

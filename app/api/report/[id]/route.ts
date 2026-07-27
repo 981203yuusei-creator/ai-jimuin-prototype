@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const dashboardUrl = new URL(req.url).origin;
     const message = [
       "【作業完了報告】",
-      `案件: ${job.workType ?? "工事"} - ${job.name ?? "お客様"}`,
+      `案件: ${job.workType ?? "作業"} - ${job.name ?? "お客様"}`,
       workerName ? `担当: ${workerName}` : null,
       comment ? `コメント: ${comment}` : null,
       "",

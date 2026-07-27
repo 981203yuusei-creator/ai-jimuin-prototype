@@ -33,7 +33,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
         {job.jobNumber && (
           <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>案件No. {job.jobNumber}</div>
         )}
-        <div style={{ fontSize: 16, fontWeight: 600 }}>{job.workType ?? "工事内容未確認"}</div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>{job.workType ?? "作業内容未確認"}</div>
         <div style={{ fontSize: 14, marginTop: 4 }}>{job.name ?? "お客様名未確認"} 様</div>
         {job.address && (
           <div style={{ marginTop: 8 }}>

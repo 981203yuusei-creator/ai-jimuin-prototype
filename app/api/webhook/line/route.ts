@@ -11,7 +11,7 @@ const FIELD_LABELS: Record<string, string> = {
   name: "お名前",
   phone: "お電話番号",
   address: "ご住所",
-  workType: "工事内容",
+  workType: "作業内容",
   photoPath: "現場の写真",
 };
 
@@ -26,7 +26,7 @@ function buildMissingFieldsReply(missingFields: string[]): string {
 function buildNewJobNotification(state: JobState, dashboardUrl: string): string {
   return [
     "【新規案件】",
-    `工事内容: ${state.workType ?? "未確認"}`,
+    `作業内容: ${state.workType ?? "未確認"}`,
     `お名前: ${state.name ?? "未確認"}`,
     `電話番号: ${state.phone ?? "未確認"}`,
     `住所: ${state.address ?? "未確認"}`,

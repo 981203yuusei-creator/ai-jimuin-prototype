@@ -31,13 +31,13 @@ export async function registerJobToCalendar(
     const calendar = google.calendar({ version: "v3", auth: getAuth() });
     const requestBody = scheduledAt
       ? {
-          summary: `${job.workType ?? "工事"} - ${job.name ?? "お客様"}`,
+          summary: `${job.workType ?? "作業"} - ${job.name ?? "お客様"}`,
           description: jobDescription(job),
           start: { dateTime: scheduledAt },
           end: { dateTime: addHoursIso(scheduledAt, 1) },
         }
       : {
-          summary: `【新規問合せ】${job.workType ?? "工事"} - ${job.name ?? "お客様"}`,
+          summary: `【新規問合せ】${job.workType ?? "作業"} - ${job.name ?? "お客様"}`,
           description: [jobDescription(job), "", "※日時未確定。要連絡・スケジュール調整。"].join("\n"),
           start: { date: todayInJst() },
           end: { date: todayInJst() },
@@ -68,7 +68,7 @@ export async function rescheduleCalendarEvent(
       calendarId,
       eventId,
       requestBody: {
-        summary: `${job.workType ?? "工事"} - ${job.name ?? "お客様"}`,
+        summary: `${job.workType ?? "作業"} - ${job.name ?? "お客様"}`,
         description: jobDescription(job),
         start: { dateTime: scheduledAt },
         end: { dateTime: addHoursIso(scheduledAt, 1) },

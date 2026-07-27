@@ -72,7 +72,7 @@ export default async function InvoicePage({
         <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
           <thead>
             <tr>
-              <th style={{ border: "1px solid #333", padding: 8, textAlign: "left" }}>工事内容</th>
+              <th style={{ border: "1px solid #333", padding: 8, textAlign: "left" }}>作業内容</th>
               <th style={{ border: "1px solid #333", padding: 8, textAlign: "right", width: 140 }}>
                 金額
               </th>

@@ -466,7 +466,7 @@ function JobCard({ job }: { job: JobRow }) {
       <Field label="住所">
         <input value={values.address} onChange={(e) => set("address", e.target.value)} style={cardInputStyle} />
       </Field>
-      <Field label="工事内容">
+      <Field label="作業内容">
         <input
           value={values.workType}
           onChange={(e) => set("workType", e.target.value)}
@@ -556,7 +556,7 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
               <th style={{ padding: 8 }}>お名前</th>
               <th style={{ padding: 8 }}>電話番号</th>
               <th style={{ padding: 8 }}>住所</th>
-              <th style={{ padding: 8 }}>工事内容</th>
+              <th style={{ padding: 8 }}>作業内容</th>
               <th style={{ padding: 8 }}>訪問予定日時</th>
               <th style={{ padding: 8 }}>写真</th>
               <th style={{ padding: 8 }}>作業報告</th>

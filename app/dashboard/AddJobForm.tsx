@@ -138,7 +138,7 @@ export default function AddJobForm() {
         <input value={values.address} onChange={(e) => set("address", e.target.value)} style={inputStyle} />
       </div>
       <div style={{ marginTop: 10 }}>
-        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>工事内容</label>
+        <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>作業内容</label>
         <input
           value={values.workType}
           onChange={(e) => set("workType", e.target.value)}
