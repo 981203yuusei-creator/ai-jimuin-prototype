@@ -5,6 +5,7 @@ import NotifySettings from "../NotifySettings";
 import EmailSettings from "../EmailSettings";
 import CompanyProfileSettings from "../CompanyProfileSettings";
 import ChangePasswordForm from "../ChangePasswordForm";
+import BillingPortalButton from "../BillingPortalButton";
 import FontSizeControl from "../FontSizeControl";
 
 export default async function SettingsPage() {
@@ -37,6 +38,8 @@ export default async function SettingsPage() {
         initialPhone={company?.contactPhone ?? null}
         initialInvoiceRegistrationNumber={company?.invoiceRegistrationNumber ?? null}
       />
+
+      {company?.stripeCustomerId && <BillingPortalButton />}
 
       <ChangePasswordForm />
 
