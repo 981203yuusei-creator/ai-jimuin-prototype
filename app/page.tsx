@@ -72,6 +72,42 @@ const PRICING_INCLUDES = [
   "いつでも解約可能",
 ];
 
+const FAQS = [
+  {
+    q: "導入にどれくらい時間がかかりますか?",
+    a: "お申込み・お支払い手続き自体は数分で完了します。LINE公式アカウントとの連携は、マニュアルに沿って進めていただくと30分程度が目安です。",
+  },
+  {
+    q: "LINEの設定は難しくないですか?",
+    a: "専用の設定マニュアルをご用意しており、パソコンが苦手な方でも順番に進めれば設定できる内容になっています。",
+  },
+  {
+    q: "電気・水道工事以外の業種でも使えますか?",
+    a: "はい。工事・修理・点検・清掃・駆除など、現場に訪問して作業を行うサービス業であれば幅広くご利用いただけます。",
+  },
+  {
+    q: "途中で解約できますか?",
+    a: "はい、いつでも解約可能です。ダッシュボードから自己完結で手続きでき、違約金は発生しません。",
+  },
+  {
+    q: "お客様の情報や写真は安全に管理されますか?",
+    a: "写真は非公開のストレージに保存され、通信は全て暗号化されています。詳しくはプライバシーポリシーをご確認ください。",
+  },
+];
+
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: f.a,
+    },
+  })),
+};
+
 const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -100,12 +136,21 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
+      />
 
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <span style={{ fontSize: 18, fontWeight: 800, color: "#1e3a8a" }}>ジムアシ</span>
-        <a href="/dashboard/login" style={{ fontSize: 14, color: "#334155", textDecoration: "none" }}>
-          ログイン
-        </a>
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <a href="/blog" style={{ fontSize: 14, color: "#334155", textDecoration: "none" }}>
+            コラム
+          </a>
+          <a href="/dashboard/login" style={{ fontSize: 14, color: "#334155", textDecoration: "none" }}>
+            ログイン
+          </a>
+        </div>
       </header>
 
       <section
@@ -174,6 +219,18 @@ export default function Home() {
         </div>
       </section>
 
+      <section style={{ maxWidth: 700, margin: "0 auto", padding: "56px 20px" }}>
+        <h2 className="section-title">よくあるご質問</h2>
+        <div>
+          {FAQS.map((f) => (
+            <div key={f.q} style={{ borderBottom: "1px solid #e5e7eb", padding: "16px 0" }}>
+              <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Q. {f.q}</p>
+              <p style={{ fontSize: 14, color: "#555", lineHeight: 1.8 }}>A. {f.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section style={{ backgroundColor: "#111827", color: "#fff", padding: "56px 20px", textAlign: "center" }}>
         <h2 style={{ fontSize: 22, marginBottom: 24 }}>料金プラン</h2>
         <div className="pricing-card">
@@ -196,6 +253,8 @@ export default function Home() {
       </section>
 
       <footer style={{ padding: "24px 16px", textAlign: "center", fontSize: 12, color: "#999" }}>
+        <a href="/blog">お役立ちコラム</a>
+        {" ・ "}
         <a href="/legal/terms">利用規約</a>
         {" ・ "}
         <a href="/legal/privacy">プライバシーポリシー</a>
