@@ -129,12 +129,13 @@ export async function getCompanyByStripeSubscriptionId(
 export async function activateSubscription(
   companyId: string,
   stripeCustomerId: string,
-  stripeSubscriptionId: string
+  stripeSubscriptionId: string,
+  status: string
 ): Promise<boolean> {
   const { error } = await getSupabase()
     .from("companies")
     .update({
-      subscription_status: "active",
+      subscription_status: status,
       stripe_customer_id: stripeCustomerId,
       stripe_subscription_id: stripeSubscriptionId,
     })
@@ -145,6 +146,10 @@ export async function activateSubscription(
     return false;
   }
   return true;
+}
+
+export function isSubscriptionUsable(status: string): boolean {
+  return status === "active" || status === "trialing";
 }
 
 export async function updateSubscriptionStatus(

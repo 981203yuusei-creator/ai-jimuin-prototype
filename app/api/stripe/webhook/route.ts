@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
         const customerId = session.customer as string | null;
         const subscriptionId = session.subscription as string | null;
         if (companyId && customerId && subscriptionId) {
-          await activateSubscription(companyId, customerId, subscriptionId);
+          const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+          await activateSubscription(companyId, customerId, subscriptionId, subscription.status);
         }
         break;
       }

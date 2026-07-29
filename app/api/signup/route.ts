@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     customer_email: email,
     client_reference_id: company.id,
     metadata: { companyId: company.id },
-    subscription_data: { metadata: { companyId: company.id } },
+    subscription_data: { trial_period_days: 30, metadata: { companyId: company.id } },
     success_url: `${origin}/signup/complete`,
     cancel_url: `${origin}/signup`,
   });

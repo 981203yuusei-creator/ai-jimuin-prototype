@@ -43,7 +43,8 @@ export default function SignupPage() {
     <div style={{ maxWidth: 360, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
       <h1 style={{ fontSize: 20, marginBottom: 8 }}>ジムアシに申し込む</h1>
       <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>
-        月額¥9,800(税込)・クレジットカード決済・いつでも解約できます。
+        30日間無料・以降は月額¥9,800(税込)・クレジットカード決済・いつでも解約できます。
+        クレジットカードのご登録は必要ですが、トライアル期間中は課金されません。
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -104,7 +105,7 @@ export default function SignupPage() {
         {error && <p style={{ color: "red", fontSize: 13, marginBottom: 12 }}>{error}</p>}
 
         <button type="submit" disabled={submitting} style={{ width: "100%", padding: 10 }}>
-          {submitting ? "手続き中..." : "お支払い手続きへ進む"}
+          {submitting ? "手続き中..." : "30日間無料で試してみる"}
         </button>
       </form>
 

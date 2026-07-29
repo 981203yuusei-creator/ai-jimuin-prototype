@@ -64,6 +64,7 @@ const STEPS: { icon: (props: { size?: number; color?: string }) => JSX.Element; 
 ];
 
 const PRICING_INCLUDES = [
+  "30日間の無料トライアル",
   "案件数・作業員数の上限なし",
   "LINE自動応答・AI電話受付",
   "Googleカレンダー連携",
@@ -73,6 +74,10 @@ const PRICING_INCLUDES = [
 ];
 
 const FAQS = [
+  {
+    q: "無料トライアル中に料金は発生しますか?",
+    a: "お申込み時にクレジットカードのご登録は必要ですが、30日間は料金が発生しません。トライアル期間中に解約すれば、一切課金されません。",
+  },
   {
     q: "導入にどれくらい時間がかかりますか?",
     a: "お申込み・お支払い手続き自体は数分で完了します。LINE公式アカウントとの連携は、マニュアルに沿って進めていただくと30分程度が目安です。",
@@ -168,11 +173,14 @@ export default function Home() {
               <br />
               事務はAIに。
             </h1>
-            <p style={{ fontSize: 16, color: "#444", maxWidth: 440, marginBottom: 32, lineHeight: 1.8 }}>
+            <p style={{ fontSize: 16, color: "#444", maxWidth: 440, marginBottom: 16, lineHeight: 1.8 }}>
               お客様対応・スケジュール管理・見積書作成まで、AIとLINEでまるごとサポートする事務アシスタント「ジムアシ」。
             </p>
+            <p style={{ fontSize: 14, color: "#2563eb", fontWeight: 700, marginBottom: 20 }}>
+              まずは30日間無料でお試しいただけます
+            </p>
             <a href="/signup" className="cta-button">
-              今すぐ申し込む(月額¥9,800)
+              30日間無料で試してみる
             </a>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
@@ -237,7 +245,7 @@ export default function Home() {
           <p style={{ fontSize: 40, fontWeight: 800, marginBottom: 4 }}>
             ¥9,800<span style={{ fontSize: 15, fontWeight: 400 }}>/月(税込)</span>
           </p>
-          <p style={{ fontSize: 13, color: "#cbd5e1", marginBottom: 20 }}>初期費用なし・プランは1つだけ</p>
+          <p style={{ fontSize: 13, color: "#cbd5e1", marginBottom: 20 }}>初期費用なし・プランは1つだけ・30日間は無料</p>
           <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", textAlign: "left" }}>
             {PRICING_INCLUDES.map((item) => (
               <li key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, marginBottom: 10 }}>
@@ -247,7 +255,7 @@ export default function Home() {
             ))}
           </ul>
           <a href="/signup" className="cta-button" style={{ backgroundColor: "#fff", color: "#111827", width: "100%", boxSizing: "border-box" }}>
-            申し込む
+            30日間無料で試してみる
           </a>
         </div>
       </section>

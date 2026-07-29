@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { getCompanyById } from "../../lib/companies";
+import { getCompanyById, isSubscriptionUsable } from "../../lib/companies";
 import { listJobsForCompany } from "../../lib/jobsRepo";
 import { getSignedPhotoUrl } from "../../lib/storage";
 import LogoutButton from "./LogoutButton";
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     listJobsForCompany(companyId),
   ]);
 
-  if (company && company.subscriptionStatus !== "active") {
+  if (company && !isSubscriptionUsable(company.subscriptionStatus)) {
     const isPending = company.subscriptionStatus === "pending";
     return (
       <div style={{ maxWidth: 400, margin: "80px auto", fontFamily: "sans-serif", padding: "0 16px", textAlign: "center" }}>

@@ -3,7 +3,12 @@ import { verifyLineSignature, replyToLine, getLineImageContent } from "../../../
 import { extractJobInfo, getMissingFields, JobState } from "../../../../lib/extractInfo";
 import { getOpenJob, saveJob } from "../../../../lib/jobsRepo";
 import { registerJobToCalendar } from "../../../../lib/calendar";
-import { getCompanyByLineDestination, confirmOwnerRegistration, Company } from "../../../../lib/companies";
+import {
+  getCompanyByLineDestination,
+  confirmOwnerRegistration,
+  isSubscriptionUsable,
+  Company,
+} from "../../../../lib/companies";
 import { uploadJobPhoto } from "../../../../lib/storage";
 import { notifyOwner } from "../../../../lib/notify";
 
@@ -80,7 +85,7 @@ export async function POST(req: NextRequest) {
     !company ||
     !company.lineChannelSecret ||
     !company.lineChannelAccessToken ||
-    company.subscriptionStatus !== "active"
+    !isSubscriptionUsable(company.subscriptionStatus)
   ) {
     return NextResponse.json({ error: "unknown channel" }, { status: 404 });
   }
