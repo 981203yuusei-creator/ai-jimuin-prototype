@@ -143,6 +143,30 @@ export default function LineSetupGuidePage() {
         </ol>
       </Step>
 
+      <Step number={7} title="お客様に「友だち追加」してもらう">
+        <p>
+          LINE公式アカウントは、お客様が「友だち追加」をしないとメッセージのやり取りができません。
+          以下のいずれかの方法で、普段お使いのお客様にアカウントを見つけてもらいましょう。
+        </p>
+        <ol>
+          <li>
+            <a href="https://manager.line.biz/" target="_blank" rel="noreferrer">
+              LINE Official Account Manager
+            </a>{" "}
+            にログインし、左側メニューの「トークルーム管理」→「あいさつメッセージ」や
+            「ホーム」画面から、友だち追加用の<strong>QRコード</strong>を確認・ダウンロードできます
+          </li>
+          <li>同じ画面で、友だち追加用の<strong>URL</strong>(lin.ee から始まるリンク)も発行できます</li>
+          <li>
+            QRコードを名刺・チラシ・請求書・お店の張り紙などに印刷しておくと、お客様がスマホのカメラで
+            読み取るだけで友だち追加できます
+          </li>
+          <li>
+            URLは、ホームページやSNSのプロフィールに貼っておくと、そこからワンタップで友だち追加できます
+          </li>
+        </ol>
+      </Step>
+
       <div
         style={{
           marginTop: 32,
