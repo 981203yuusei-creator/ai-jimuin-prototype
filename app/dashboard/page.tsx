@@ -19,12 +19,16 @@ export default async function DashboardPage() {
   ]);
 
   if (company && company.subscriptionStatus !== "active") {
+    const isPending = company.subscriptionStatus === "pending";
     return (
       <div style={{ maxWidth: 400, margin: "80px auto", fontFamily: "sans-serif", padding: "0 16px", textAlign: "center" }}>
-        <h1 style={{ fontSize: 18, marginBottom: 16 }}>お支払いの確認待ちです</h1>
+        <h1 style={{ fontSize: 18, marginBottom: 16 }}>
+          {isPending ? "お支払いの確認待ちです" : "ご契約は終了しています"}
+        </h1>
         <p style={{ fontSize: 14, color: "#333" }}>
-          お支払いの確認が完了すると、自動的にダッシュボードをご利用いただけるようになります。
-          しばらく経っても表示されない場合はお問い合わせください。
+          {isPending
+            ? "お支払いの確認が完了すると、自動的にダッシュボードをご利用いただけるようになります。しばらく経っても表示されない場合はお問い合わせください。"
+            : "解約手続きが完了し、現在ダッシュボードはご利用いただけません。再度ご利用になる場合はお問い合わせください。"}
         </p>
         <div style={{ marginTop: 24 }}>
           <LogoutButton />

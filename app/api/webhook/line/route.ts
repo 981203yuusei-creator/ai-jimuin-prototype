@@ -76,7 +76,12 @@ export async function POST(req: NextRequest) {
   }
 
   const company = await getCompanyByLineDestination(body.destination ?? "");
-  if (!company || !company.lineChannelSecret || !company.lineChannelAccessToken) {
+  if (
+    !company ||
+    !company.lineChannelSecret ||
+    !company.lineChannelAccessToken ||
+    company.subscriptionStatus !== "active"
+  ) {
     return NextResponse.json({ error: "unknown channel" }, { status: 404 });
   }
 
