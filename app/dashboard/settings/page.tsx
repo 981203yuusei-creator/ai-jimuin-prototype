@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import { getCompanyById } from "../../../lib/companies";
+import { getConfirmedReferralCount } from "../../../lib/referrals";
 import LineIntegrationSettings from "../LineIntegrationSettings";
+import ReferralSettings from "../ReferralSettings";
 import NotifySettings from "../NotifySettings";
 import EmailSettings from "../EmailSettings";
 import CompanyProfileSettings from "../CompanyProfileSettings";
@@ -10,7 +12,10 @@ import FontSizeControl from "../FontSizeControl";
 
 export default async function SettingsPage() {
   const companyId = headers().get("x-company-id") ?? "";
-  const company = await getCompanyById(companyId);
+  const [company, confirmedReferralCount] = await Promise.all([
+    getCompanyById(companyId),
+    getConfirmedReferralCount(companyId),
+  ]);
 
   return (
     <div style={{ maxWidth: 500, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
@@ -37,6 +42,11 @@ export default async function SettingsPage() {
         initialAddress={company?.contactAddress ?? null}
         initialPhone={company?.contactPhone ?? null}
         initialInvoiceRegistrationNumber={company?.invoiceRegistrationNumber ?? null}
+      />
+
+      <ReferralSettings
+        referralCode={company?.referralCode ?? null}
+        confirmedCount={confirmedReferralCount}
       />
 
       {company?.stripeCustomerId && <BillingPortalButton />}

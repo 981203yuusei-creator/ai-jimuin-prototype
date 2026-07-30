@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function SignupPage() {
+function SignupForm() {
+  const searchParams = useSearchParams();
   const [companyName, setCompanyName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setReferralCode(ref.toUpperCase());
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +32,7 @@ export default function SignupPage() {
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyName, username, password, email }),
+      body: JSON.stringify({ companyName, username, password, email, referralCode }),
     });
     const body = await res.json();
     setSubmitting(false);
@@ -69,7 +77,7 @@ export default function SignupPage() {
             style={inputStyle}
           />
         </div>
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
             連絡先メールアドレス(パスワード再設定用)
           </label>
@@ -79,6 +87,22 @@ export default function SignupPage() {
             onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
           />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
+            紹介コード(お持ちの場合・任意)
+          </label>
+          <input
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+            placeholder="例: A1B2C3D4"
+            style={inputStyle}
+          />
+          {referralCode && (
+            <p style={{ fontSize: 12, color: "#16a34a", marginTop: 4 }}>
+              入力いただくと、最初の3ヶ月は月¥1,000引きになります。
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: 16, fontSize: 13 }}>
@@ -113,5 +137,13 @@ export default function SignupPage() {
         <a href="/legal/tokushoho">特定商取引法に基づく表記</a>
       </p>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
   );
 }

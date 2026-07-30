@@ -4,7 +4,9 @@ import { getStripe } from "../../../../lib/stripe";
 import {
   activateSubscription,
   updateSubscriptionStatus,
+  getCompanyByStripeSubscriptionId,
 } from "../../../../lib/companies";
+import { handleReferredInvoicePaid, invalidatePendingReferral } from "../../../../lib/referrals";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -40,6 +42,22 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         await updateSubscriptionStatus(subscription.id, "canceled");
+        const company = await getCompanyByStripeSubscriptionId(subscription.id);
+        if (company) {
+          await invalidatePendingReferral(company.id);
+        }
+        break;
+      }
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subscriptionRef = invoice.parent?.subscription_details?.subscription;
+        const subscriptionId = typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef?.id ?? null;
+        if (subscriptionId) {
+          const company = await getCompanyByStripeSubscriptionId(subscriptionId);
+          if (company) {
+            await handleReferredInvoicePaid(company.id);
+          }
+        }
         break;
       }
     }

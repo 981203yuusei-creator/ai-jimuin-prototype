@@ -19,6 +19,7 @@ export type Company = {
   subscriptionStatus: string;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
+  referralCode: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -40,6 +41,7 @@ function mapRow(data: any): Company {
     subscriptionStatus: data.subscription_status,
     stripeCustomerId: data.stripe_customer_id,
     stripeSubscriptionId: data.stripe_subscription_id,
+    referralCode: data.referral_code,
   };
 }
 
@@ -85,6 +87,10 @@ export async function getCompanyById(id: string): Promise<Company | null> {
   return data ? mapRow(data) : null;
 }
 
+function generateReferralCode(): string {
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
+}
+
 export async function createPendingCompany(fields: {
   name: string;
   dashboardUsername: string;
@@ -99,12 +105,27 @@ export async function createPendingCompany(fields: {
       dashboard_password_hash: fields.dashboardPasswordHash,
       email: fields.email,
       subscription_status: "pending",
+      referral_code: generateReferralCode(),
     })
     .select()
     .maybeSingle();
 
   if (error) {
     console.error("createPendingCompany failed:", error);
+    return null;
+  }
+  return data ? mapRow(data) : null;
+}
+
+export async function getCompanyByReferralCode(code: string): Promise<Company | null> {
+  const { data, error } = await getSupabase()
+    .from("companies")
+    .select("*")
+    .eq("referral_code", code)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getCompanyByReferralCode failed:", error);
     return null;
   }
   return data ? mapRow(data) : null;

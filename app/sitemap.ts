@@ -11,6 +11,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/legal/tokushoho",
     "/guide/line-setup",
     "/blog",
+    "/blog/denkikoji-jimu-rakuni",
+    "/blog/suidokoji-jimu-kouritsuka",
     "/blog/denwa-taiou-genba",
     "/blog/line-koukyaku-kanri",
     "/blog/hitorioyakata-jimu-kouritsuka",

@@ -8,6 +8,16 @@ export const metadata: Metadata = {
 
 const ARTICLES = [
   {
+    slug: "denkikoji-jimu-rakuni",
+    title: "電気工事店の事務作業を楽にする方法",
+    description: "電気工事店・電気工事士の受付対応・案件管理・見積請求の負担を、人を増やさずに減らす方法。",
+  },
+  {
+    slug: "suidokoji-jimu-kouritsuka",
+    title: "水道工事店が事務作業を効率化する方法",
+    description: "緊急対応が多い水道工事店の電話取りこぼしや、見積・請求・確定申告の負担を減らす方法。",
+  },
+  {
     slug: "denwa-taiou-genba",
     title: "現場作業中に電話が鳴っても対応できない問題を解決する方法",
     description: "電話代行・事務員雇用・LINE活用など、現実的な解決策をコストの観点から比較します。",
