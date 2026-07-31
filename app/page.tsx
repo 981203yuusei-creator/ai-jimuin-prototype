@@ -71,7 +71,7 @@ const PRICING_INCLUDES = [
   "見積書・請求書発行",
   "月次・年次集計、CSV出力",
   "いつでも解約可能",
-  "紹介1人につき永続¥1,000引き(最大5人まで)",
+  "紹介1人につき永続¥1,000引き",
 ];
 
 const FAQS = [
@@ -187,8 +187,10 @@ export default function Home() {
             <a href="/signup" className="cta-button">
               30日間無料で試してみる
             </a>
-            <p style={{ fontSize: 13, color: "#666", marginTop: 16 }}>
-              お友だち紹介で、紹介1人につき永続¥1,000引き(最大5人・¥5,000引きまで)
+            <p style={{ fontSize: 13, color: "#666", marginTop: 16, wordBreak: "keep-all" }}>
+              お友だち紹介で1人につき永続¥1,000引き
+              <br />
+              最大5人まで・¥5,000引き
             </p>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
@@ -256,7 +258,7 @@ export default function Home() {
           <p style={{ fontSize: 13, color: "#cbd5e1", marginBottom: 20 }}>初期費用なし・プランは1つだけ・30日間は無料</p>
           <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", textAlign: "left" }}>
             {PRICING_INCLUDES.map((item) => (
-              <li key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, marginBottom: 10 }}>
+              <li key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, marginBottom: 10, wordBreak: "keep-all" }}>
                 <CheckCircleIcon size={18} />
                 {item}
               </li>
@@ -277,13 +279,21 @@ export default function Home() {
           <div className="referral-grid">
             <div className="referral-box">
               <p style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>紹介された方</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb" }}>3ヶ月間 ¥1,000引き</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb", lineHeight: 1.4 }}>
+                3ヶ月間
+                <br />
+                ¥1,000引き
+              </p>
             </div>
             <div className="referral-box">
               <p style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>紹介した方</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb" }}>
-                1人につき永続 ¥1,000引き<br />
-                <span style={{ fontSize: 13, fontWeight: 400, color: "#666" }}>(最大5人まで・合計¥5,000引き)</span>
+              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb", lineHeight: 1.4 }}>
+                1人につき永続
+                <br />
+                ¥1,000引き
+              </p>
+              <p style={{ fontSize: 12, fontWeight: 400, color: "#666", marginTop: 4 }}>
+                (最大5人まで・合計¥5,000引き)
               </p>
             </div>
           </div>
