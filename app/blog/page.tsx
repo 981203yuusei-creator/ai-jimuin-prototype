@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { listBlogPosts } from "../../lib/blog";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "お役立ちコラム",
@@ -42,9 +45,40 @@ const ARTICLES = [
     title: "職人・現場仕事のための確定申告の準備と経費管理",
     description: "確定申告に向けた売上記録・経費管理のポイントを、日頃からできる準備として紹介します。",
   },
+  {
+    slug: "yoyaku-schedule-kanri",
+    title: "予約・スケジュール管理をひとつにまとめる方法",
+    description: "紙の手帳・カレンダーアプリ・メモがバラバラになりがちな予約管理を一本化する方法。",
+  },
+  {
+    slug: "genba-shashin-kanri",
+    title: "現場写真の管理でお客様とのトラブルを防ぐ方法",
+    description: "作業前後の現場写真をきちんと管理し、言った言わないのトラブルを防ぐコツを解説します。",
+  },
+  {
+    slug: "mitsumori-kakaku-settei",
+    title: "小規模事業者の見積もり・価格設定の基本",
+    description: "見積もりと価格設定を考える際に押さえておきたい、値下げに頼らない基本的な視点。",
+  },
+  {
+    slug: "after-follow-repeat",
+    title: "リピート顧客を増やすアフターフォローの工夫",
+    description: "新規集客に頼らず経営を安定させるための、アフターフォローの工夫を紹介します。",
+  },
+  {
+    slug: "sagyoin-jouhou-kyoyu",
+    title: "現場作業員との情報共有をスムーズにする方法",
+    description: "電話での口頭連絡に頼らず、複数人で現場を回す際の情報共有をスムーズにする方法。",
+  },
 ];
 
-export default function BlogIndexPage() {
+export default async function BlogIndexPage() {
+  const dbPosts = await listBlogPosts();
+  const allArticles = [
+    ...dbPosts.map((p) => ({ slug: p.slug, title: p.title, description: p.description })),
+    ...ARTICLES,
+  ];
+
   return (
     <div style={{ maxWidth: 680, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
       <p style={{ fontSize: 13 }}>
@@ -56,7 +90,7 @@ export default function BlogIndexPage() {
       </p>
 
       <div>
-        {ARTICLES.map((a) => (
+        {allArticles.map((a) => (
           <a
             key={a.slug}
             href={`/blog/${a.slug}`}
