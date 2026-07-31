@@ -98,6 +98,10 @@ const FAQS = [
     q: "お客様の情報や写真は安全に管理されますか?",
     a: "写真は非公開のストレージに保存され、通信は全て暗号化されています。詳しくはプライバシーポリシーをご確認ください。",
   },
+  {
+    q: "お友だち紹介プログラムとは何ですか?",
+    a: "ご契約中の方に発行される紹介リンクから知り合いが申し込むと、紹介された方は最初の3ヶ月間 月¥1,000引きになります。紹介した方は、その方が3ヶ月継続すると月¥1,000引き(永続)になり、最大5人まで紹介で月¥5,000引きになります。",
+  },
 ];
 
 const FAQ_JSON_LD = {
@@ -260,6 +264,31 @@ export default function Home() {
         </div>
       </section>
 
+      <section style={{ maxWidth: 700, margin: "0 auto", padding: "56px 20px", textAlign: "center" }}>
+        <h2 className="section-title">お友だち紹介プログラム</h2>
+        <div className="referral-card">
+          <p style={{ fontSize: 15, lineHeight: 1.9, marginBottom: 0 }}>
+            ご契約中の方は、専用の紹介リンクをお友だちに共有できます。
+          </p>
+          <div className="referral-grid">
+            <div className="referral-box">
+              <p style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>紹介された方</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb" }}>3ヶ月間 ¥1,000引き</p>
+            </div>
+            <div className="referral-box">
+              <p style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>紹介した方</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb" }}>
+                永続 ¥1,000引き<br />
+                <span style={{ fontSize: 13, fontWeight: 400, color: "#666" }}>(最大5人・¥5,000引きまで)</span>
+              </p>
+            </div>
+          </div>
+          <p style={{ fontSize: 12, color: "#999", marginTop: 16 }}>
+            ※紹介された方が3ヶ月以上ご継続いただいた場合に、紹介した方の割引が適用されます。紹介リンクはお申込み後、ダッシュボードの設定画面からご確認いただけます。
+          </p>
+        </div>
+      </section>
+
       <footer style={{ padding: "24px 16px", textAlign: "center", fontSize: 12, color: "#999" }}>
         <a href="/blog">お役立ちコラム</a>
         {" ・ "}
@@ -376,6 +405,24 @@ export default function Home() {
           border-radius: 16px;
           padding: 32px;
         }
+        .referral-card {
+          border: 1px solid #dbeafe;
+          background: #f0f6ff;
+          border-radius: 16px;
+          padding: 32px;
+        }
+        .referral-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-top: 20px;
+        }
+        .referral-box {
+          background: #fff;
+          border: 1px solid #dbeafe;
+          border-radius: 10px;
+          padding: 16px;
+        }
         @media (max-width: 800px) {
           .hero-grid {
             grid-template-columns: 1fr;
@@ -405,6 +452,9 @@ export default function Home() {
             grid-template-columns: 1fr;
           }
           .feature-grid {
+            grid-template-columns: 1fr;
+          }
+          .referral-grid {
             grid-template-columns: 1fr;
           }
         }
