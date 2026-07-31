@@ -71,6 +71,7 @@ const PRICING_INCLUDES = [
   "見積書・請求書発行",
   "月次・年次集計、CSV出力",
   "いつでも解約可能",
+  "紹介1人につき永続¥1,000引き(最大5人まで)",
 ];
 
 const FAQS = [
@@ -186,6 +187,9 @@ export default function Home() {
             <a href="/signup" className="cta-button">
               30日間無料で試してみる
             </a>
+            <p style={{ fontSize: 13, color: "#666", marginTop: 16 }}>
+              お友だち紹介で、紹介1人につき永続¥1,000引き(最大5人・¥5,000引きまで)
+            </p>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <HeroIllustration />
@@ -278,8 +282,8 @@ export default function Home() {
             <div className="referral-box">
               <p style={{ fontSize: 13, color: "#666", marginBottom: 6 }}>紹介した方</p>
               <p style={{ fontSize: 22, fontWeight: 800, color: "#2563eb" }}>
-                永続 ¥1,000引き<br />
-                <span style={{ fontSize: 13, fontWeight: 400, color: "#666" }}>(最大5人・¥5,000引きまで)</span>
+                1人につき永続 ¥1,000引き<br />
+                <span style={{ fontSize: 13, fontWeight: 400, color: "#666" }}>(最大5人まで・合計¥5,000引き)</span>
               </p>
             </div>
           </div>
