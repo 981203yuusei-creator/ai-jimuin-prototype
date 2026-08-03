@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 
 const SITE_URL = "https://ai-jimuin-prototype-shimo1.vercel.app";
 const TITLE = "ジムアシ | 現場訪問サービス業の事務をAIとLINEで自動化";
@@ -50,7 +51,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
