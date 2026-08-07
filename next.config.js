@@ -2,6 +2,9 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+    outputFileTracingIncludes: {
+      "/api/cron/post-to-note/route": ["./node_modules/@sparticuz/chromium/bin/**"],
+    },
   },
 };
 
