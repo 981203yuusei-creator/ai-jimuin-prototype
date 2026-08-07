@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateNotePost, recordNotePost } from "../../../../lib/notePost";
 import { postToNote } from "../../../../lib/noteAutomation";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");

@@ -26,18 +26,48 @@ export async function postToNote(
     );
 
     await page.goto("https://note.com/login", { waitUntil: "networkidle2", timeout: 30000 });
+    await page.waitForSelector("#email", { timeout: 20000 });
     await page.type("#email", NOTE_EMAIL, { delay: 20 });
     await page.type("#password", NOTE_PASSWORD, { delay: 20 });
+
+    try {
+      await page.waitForFunction(
+        () => {
+          const buttons = Array.from(document.querySelectorAll("button"));
+          return buttons.some(
+            (b) => b.textContent?.includes("ログイン") && !(b as HTMLButtonElement).disabled
+          );
+        },
+        { timeout: 10000 }
+      );
+    } catch {
+      const bodyText = await page
+        .evaluate(() => document.body.innerText.slice(0, 300))
+        .catch(() => "");
+      throw new Error(`login button never enabled body=${bodyText.replace(/\s+/g, " ")}`);
+    }
+
     await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll("button"));
       const btn = buttons.find((b) => b.textContent?.includes("ログイン") && !(b as HTMLButtonElement).disabled);
       (btn as HTMLButtonElement | undefined)?.click();
     });
 
-    await page.waitForFunction(() => !location.pathname.includes("/login"), { timeout: 20000 });
+    try {
+      await page.waitForFunction(() => !location.pathname.includes("/login"), { timeout: 20000 });
+    } catch {
+      const debugUrl = page.url();
+      const debugTitle = await page.title().catch(() => "");
+      const bodyText = await page
+        .evaluate(() => document.body.innerText.slice(0, 300))
+        .catch(() => "");
+      throw new Error(
+        `login timeout url=${debugUrl} title=${debugTitle} body=${bodyText.replace(/\s+/g, " ")}`
+      );
+    }
     await new Promise((r) => setTimeout(r, 1500));
 
-    await page.goto("https://note.com/notes/new", { waitUntil: "networkidle2", timeout: 30000 });
+    await page.goto("https://note.com/notes/new", { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForSelector('textarea[placeholder="記事タイトル"]', { timeout: 20000 });
 
     await page.click('textarea[placeholder="記事タイトル"]');
