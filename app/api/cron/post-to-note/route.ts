@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateNotePost, recordNotePost } from "../../../../lib/notePost";
-import { postToNote } from "../../../../lib/noteAutomation";
-
-export const maxDuration = 120;
+import { generateNotePost, saveNoteDraft } from "../../../../lib/notePost";
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
@@ -15,12 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "generation failed" }, { status: 500 });
   }
 
-  const result = await postToNote(generated.title, generated.paragraphs);
-  if (!result.success) {
-    return NextResponse.json({ error: result.error }, { status: 500 });
-  }
+  await saveNoteDraft(generated.title, generated.paragraphs);
 
-  await recordNotePost(generated.title, result.url);
-
-  return NextResponse.json({ ok: true, title: generated.title, url: result.url });
+  return NextResponse.json({ ok: true, title: generated.title });
 }

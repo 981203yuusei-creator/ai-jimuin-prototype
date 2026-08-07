@@ -64,7 +64,23 @@ ${recentTitles.length > 0 ? recentTitles.map((t: string) => `・${t}`).join("\n"
   }
 }
 
-export async function recordNotePost(title: string, url: string | undefined): Promise<void> {
-  const { error } = await getSupabase().from("note_posts").insert({ title, url });
-  if (error) console.error("recordNotePost failed:", error);
+export async function saveNoteDraft(title: string, paragraphs: string[]): Promise<void> {
+  const { error } = await getSupabase()
+    .from("note_posts")
+    .insert({ title, body_json: paragraphs });
+  if (error) console.error("saveNoteDraft failed:", error);
+}
+
+export type NoteDraft = { title: string; paragraphs: string[]; createdAt: string };
+
+export async function getLatestNoteDraft(): Promise<NoteDraft | null> {
+  const { data, error } = await getSupabase()
+    .from("note_posts")
+    .select("title, body_json, created_at")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return { title: data.title, paragraphs: data.body_json ?? [], createdAt: data.created_at };
 }
