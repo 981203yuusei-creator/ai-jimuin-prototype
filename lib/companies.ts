@@ -20,6 +20,7 @@ export type Company = {
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   referralCode: string | null;
+  integrationApiKey: string | null;
 };
 
 function mapRow(data: any): Company {
@@ -42,6 +43,7 @@ function mapRow(data: any): Company {
     stripeCustomerId: data.stripe_customer_id,
     stripeSubscriptionId: data.stripe_subscription_id,
     referralCode: data.referral_code,
+    integrationApiKey: data.integration_api_key,
   };
 }
 
@@ -336,4 +338,33 @@ export async function resetPasswordWithToken(companyId: string, passwordHash: st
     return false;
   }
   return true;
+}
+
+export async function getCompanyByIntegrationApiKey(key: string): Promise<Company | null> {
+  const { data, error } = await getSupabase()
+    .from("companies")
+    .select("*")
+    .eq("integration_api_key", key)
+    .maybeSingle();
+
+  if (error) {
+    console.error("getCompanyByIntegrationApiKey failed:", error);
+    return null;
+  }
+  return data ? mapRow(data) : null;
+}
+
+export async function regenerateIntegrationApiKey(companyId: string): Promise<string | null> {
+  const key = "jma_" + crypto.randomBytes(24).toString("hex");
+
+  const { error } = await getSupabase()
+    .from("companies")
+    .update({ integration_api_key: key })
+    .eq("id", companyId);
+
+  if (error) {
+    console.error("regenerateIntegrationApiKey failed:", error);
+    return null;
+  }
+  return key;
 }

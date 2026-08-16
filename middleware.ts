@@ -40,5 +40,6 @@ export const config = {
     "/api/dashboard/export",
     "/api/dashboard/line-integration",
     "/api/dashboard/billing-portal",
+    "/api/dashboard/integration-key",
   ],
 };

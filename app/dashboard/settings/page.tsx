@@ -6,6 +6,7 @@ import ReferralSettings from "../ReferralSettings";
 import NotifySettings from "../NotifySettings";
 import EmailSettings from "../EmailSettings";
 import CompanyProfileSettings from "../CompanyProfileSettings";
+import IntegrationSettings from "../IntegrationSettings";
 import ChangePasswordForm from "../ChangePasswordForm";
 import BillingPortalButton from "../BillingPortalButton";
 import FontSizeControl from "../FontSizeControl";
@@ -48,6 +49,8 @@ export default async function SettingsPage() {
         referralCode={company?.referralCode ?? null}
         confirmedCount={confirmedReferralCount}
       />
+
+      <IntegrationSettings initialApiKey={company?.integrationApiKey ?? null} />
 
       {company?.stripeCustomerId && <BillingPortalButton />}
 
