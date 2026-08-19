@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { splitJstDateTime, combineJstDateTime } from "../../lib/time";
 
 export type JobRow = {
@@ -59,6 +60,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 function useEditableJob(job: JobRow) {
+  const router = useRouter();
   const initialSchedule = splitJstDateTime(job.scheduledAt);
   const [values, setValues] = useState({
     name: job.name ?? "",
@@ -104,6 +106,8 @@ function useEditableJob(job: JobRow) {
     setSaving(false);
     if (res.ok) {
       setSavedAt(Date.now());
+      // 未回収金額などの集計はサーバー側で計算しているため、保存後に再取得して反映する。
+      router.refresh();
     }
   }
 
