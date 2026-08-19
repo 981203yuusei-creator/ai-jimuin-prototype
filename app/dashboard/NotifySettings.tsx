@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function NotifySettings({ connected }: { connected: boolean }) {
   const [code, setCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function handleGenerate() {
     setLoading(true);
@@ -14,6 +15,13 @@ export default function NotifySettings({ connected }: { connected: boolean }) {
       const body = await res.json();
       setCode(body.code);
     }
+  }
+
+  async function handleCopy() {
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -35,6 +43,9 @@ export default function NotifySettings({ connected }: { connected: boolean }) {
           そのまま送信してください:
           <br />
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2 }}>{code}</span>
+          <button type="button" onClick={handleCopy} style={{ marginLeft: 10, fontSize: 12, padding: "2px 8px" }}>
+            {copied ? "コピーしました" : "コピー"}
+          </button>
         </p>
       ) : (
         <div style={{ marginTop: 8 }}>

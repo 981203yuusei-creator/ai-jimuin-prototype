@@ -45,6 +45,7 @@ export default function EmailSettings({ currentEmail }: { currentEmail: string |
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="example@example.com"
+        autoComplete="email"
         style={{ width: "100%", padding: 8, boxSizing: "border-box", fontSize: 16 }}
       />
       {error && <p style={{ color: "red", fontSize: 12, marginTop: 6 }}>{error}</p>}
