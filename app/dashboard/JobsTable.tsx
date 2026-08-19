@@ -627,13 +627,73 @@ function JobCard({ job }: { job: JobRow }) {
   );
 }
 
+const FILTER_OPTIONS = [
+  { value: "all", label: "すべて" },
+  { value: "collecting", label: "受付中" },
+  { value: "completed", label: "対応待ち" },
+  { value: "done", label: "作業完了" },
+  { value: "unpaid", label: "未回収のみ" },
+];
+
+function matchesSearch(job: JobRow, keyword: string): boolean {
+  if (!keyword) return true;
+  const haystack = [job.name, job.phone, job.address, job.workType, job.invoiceNote]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(keyword.toLowerCase());
+}
+
+function matchesFilter(job: JobRow, filter: string): boolean {
+  if (filter === "all") return true;
+  if (filter === "unpaid") return !job.isPaid && !!job.invoiceAmount;
+  return job.status === filter;
+}
+
 export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+
   if (jobs.length === 0) {
     return <p>まだ案件がありません。</p>;
   }
 
+  const filteredJobs = jobs.filter((job) => matchesSearch(job, search) && matchesFilter(job, filter));
+
   return (
     <div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="名前・電話番号・住所・作業内容で検索"
+          style={{ padding: 8, fontSize: 14, minWidth: 240, flex: "1 1 240px", boxSizing: "border-box" }}
+        />
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {FILTER_OPTIONS.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => setFilter(o.value)}
+              style={{
+                padding: "6px 10px",
+                fontSize: 13,
+                borderRadius: 4,
+                border: filter === o.value ? "1px solid #2563eb" : "1px solid #ccc",
+                backgroundColor: filter === o.value ? "#dbeafe" : "#fff",
+                color: filter === o.value ? "#1e40af" : "#333",
+                cursor: "pointer",
+              }}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+        <span style={{ fontSize: 12, color: "#888" }}>{filteredJobs.length}件表示中(全{jobs.length}件)</span>
+      </div>
+
+      {filteredJobs.length === 0 && <p style={{ color: "#888" }}>該当する案件がありません。</p>}
+
       <div className="jobs-table-desktop">
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
@@ -658,7 +718,7 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
             </tr>
           </thead>
           <tbody>
-            {jobs.map((job) => (
+            {filteredJobs.map((job) => (
               <EditableRow key={job.id} job={job} />
             ))}
           </tbody>
@@ -666,7 +726,7 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
       </div>
 
       <div className="jobs-cards-mobile">
-        {jobs.map((job) => (
+        {filteredJobs.map((job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
