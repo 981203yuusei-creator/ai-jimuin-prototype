@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const WORKER_NAME_STORAGE_KEY = "jimuassi_report_worker_name";
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
@@ -24,6 +26,11 @@ function toJstIso(dateValue: string, timeValue: string): string | null {
 export default function ReportForm({ jobId }: { jobId: string }) {
   const now = new Date();
   const [workerName, setWorkerName] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem(WORKER_NAME_STORAGE_KEY);
+    if (saved) setWorkerName(saved);
+  }, []);
   const [workDate, setWorkDate] = useState(() => toDateValue(now));
   const [startedTime, setStartedTime] = useState("");
   const [completedTime, setCompletedTime] = useState(() => toTimeValue(now));
@@ -37,6 +44,7 @@ export default function ReportForm({ jobId }: { jobId: string }) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    localStorage.setItem(WORKER_NAME_STORAGE_KEY, workerName);
 
     const formData = new FormData();
     formData.set("workerName", workerName);
@@ -69,7 +77,12 @@ export default function ReportForm({ jobId }: { jobId: string }) {
     <form onSubmit={handleSubmit}>
       <div style={{ marginBottom: 12 }}>
         <label style={{ display: "block", marginBottom: 4 }}>担当者名</label>
-        <input value={workerName} onChange={(e) => setWorkerName(e.target.value)} style={inputStyle} />
+        <input
+          value={workerName}
+          onChange={(e) => setWorkerName(e.target.value)}
+          required
+          style={inputStyle}
+        />
       </div>
       <div style={{ marginBottom: 12 }}>
         <label style={{ display: "block", marginBottom: 4 }}>作業日</label>

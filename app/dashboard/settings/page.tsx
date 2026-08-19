@@ -28,33 +28,89 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <LineIntegrationSettings
-        initialLineChannelId={company?.lineChannelId ?? null}
-        initialLineChannelSecret={company?.lineChannelSecret ?? null}
-        initialLineChannelAccessToken={company?.lineChannelAccessToken ?? null}
-        initialCalendarId={company?.calendarId ?? null}
-      />
+      <nav
+        style={{
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          marginBottom: 24,
+          paddingBottom: 16,
+          borderBottom: "1px solid #eee",
+        }}
+      >
+        {[
+          ["#line", "LINE連携"],
+          ["#notify", "LINE通知"],
+          ["#email", "メール"],
+          ["#profile", "会社情報"],
+          ["#referral", "紹介プログラム"],
+          ["#integration", "外部連携"],
+          ...(company?.stripeCustomerId ? [["#billing", "お支払い"]] : []),
+          ["#password", "パスワード"],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            style={{
+              fontSize: 12,
+              padding: "4px 10px",
+              borderRadius: 12,
+              border: "1px solid #ccc",
+              color: "#333",
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
 
-      <NotifySettings connected={!!company?.ownerLineUserId} />
+      <div id="line">
+        <LineIntegrationSettings
+          initialLineChannelId={company?.lineChannelId ?? null}
+          initialLineChannelSecret={company?.lineChannelSecret ?? null}
+          initialLineChannelAccessToken={company?.lineChannelAccessToken ?? null}
+          initialCalendarId={company?.calendarId ?? null}
+        />
+      </div>
 
-      <EmailSettings currentEmail={company?.email ?? null} />
+      <div id="notify">
+        <NotifySettings connected={!!company?.ownerLineUserId} />
+      </div>
 
-      <CompanyProfileSettings
-        initialAddress={company?.contactAddress ?? null}
-        initialPhone={company?.contactPhone ?? null}
-        initialInvoiceRegistrationNumber={company?.invoiceRegistrationNumber ?? null}
-      />
+      <div id="email">
+        <EmailSettings currentEmail={company?.email ?? null} />
+      </div>
 
-      <ReferralSettings
-        referralCode={company?.referralCode ?? null}
-        confirmedCount={confirmedReferralCount}
-      />
+      <div id="profile">
+        <CompanyProfileSettings
+          initialAddress={company?.contactAddress ?? null}
+          initialPhone={company?.contactPhone ?? null}
+          initialInvoiceRegistrationNumber={company?.invoiceRegistrationNumber ?? null}
+        />
+      </div>
 
-      <IntegrationSettings initialApiKey={company?.integrationApiKey ?? null} />
+      <div id="referral">
+        <ReferralSettings
+          referralCode={company?.referralCode ?? null}
+          confirmedCount={confirmedReferralCount}
+        />
+      </div>
 
-      {company?.stripeCustomerId && <BillingPortalButton />}
+      <div id="integration">
+        <IntegrationSettings initialApiKey={company?.integrationApiKey ?? null} />
+      </div>
 
-      <ChangePasswordForm />
+      {company?.stripeCustomerId && (
+        <div id="billing">
+          <BillingPortalButton />
+        </div>
+      )}
+
+      <div id="password">
+        <ChangePasswordForm />
+      </div>
 
       <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #eee", fontSize: 12, color: "#999" }}>
         <p>サポート窓口: 準備中</p>

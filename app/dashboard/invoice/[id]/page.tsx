@@ -36,11 +36,20 @@ export default async function InvoicePage({
 
   return (
     <div style={{ maxWidth: 640, margin: "40px auto", fontFamily: "sans-serif", padding: "0 16px" }}>
-      <div className="no-print" style={{ marginBottom: 16 }}>
-        <a href={`/dashboard/invoice/${job.id}?type=quote`} style={{ marginRight: 12 }}>
+      <div className="no-print" style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <a href="/dashboard" style={{ color: "#555" }}>
+          ← 案件一覧に戻る
+        </a>
+        <a
+          href={`/dashboard/invoice/${job.id}?type=quote`}
+          style={{ fontWeight: type === "quote" ? 700 : 400, textDecoration: type === "quote" ? "underline" : "none" }}
+        >
           見積書
         </a>
-        <a href={`/dashboard/invoice/${job.id}?type=invoice`} style={{ marginRight: 12 }}>
+        <a
+          href={`/dashboard/invoice/${job.id}?type=invoice`}
+          style={{ fontWeight: type === "invoice" ? 700 : 400, textDecoration: type === "invoice" ? "underline" : "none" }}
+        >
           請求書
         </a>
         <PrintButton />
