@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PasswordInput from "./PasswordInput";
 
 export default function ChangePasswordForm() {
   const [open, setOpen] = useState(false);
@@ -60,10 +61,11 @@ export default function ChangePasswordForm() {
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
           現在のパスワード
         </label>
-        <input
-          type="password"
+        <PasswordInput
           value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
+          onChange={setCurrentPassword}
+          autoComplete="current-password"
+          autoFocus
           style={inputStyle}
         />
       </div>
@@ -71,10 +73,10 @@ export default function ChangePasswordForm() {
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
           新しいパスワード(8文字以上)
         </label>
-        <input
-          type="password"
+        <PasswordInput
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={setNewPassword}
+          autoComplete="new-password"
           style={inputStyle}
         />
       </div>
@@ -82,12 +84,15 @@ export default function ChangePasswordForm() {
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
           新しいパスワード(確認)
         </label>
-        <input
-          type="password"
+        <PasswordInput
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={setConfirmPassword}
+          autoComplete="new-password"
           style={inputStyle}
         />
+        {confirmPassword && newPassword !== confirmPassword && (
+          <p style={{ color: "#b91c1c", fontSize: 12, marginTop: 4 }}>パスワードが一致しません</p>
+        )}
       </div>
       {error && <p style={{ color: "red", fontSize: 12, marginTop: 8 }}>{error}</p>}
       {success && <p style={{ color: "green", fontSize: 12, marginTop: 8 }}>変更しました。</p>}

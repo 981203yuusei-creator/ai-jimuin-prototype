@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import PasswordInput from "../dashboard/PasswordInput";
 
 function SignupForm() {
   const searchParams = useSearchParams();
@@ -58,22 +59,35 @@ function SignupForm() {
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>会社名</label>
-          <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} style={inputStyle} />
+          <input
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            autoComplete="organization"
+            autoFocus
+            required
+            style={inputStyle}
+          />
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
             ダッシュボードのログインユーザー名
           </label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} />
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            required
+            style={inputStyle}
+          />
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>
             パスワード(8文字以上)
           </label>
-          <input
-            type="password"
+          <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
+            autoComplete="new-password"
             style={inputStyle}
           />
         </div>
@@ -85,6 +99,8 @@ function SignupForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
             style={inputStyle}
           />
         </div>
