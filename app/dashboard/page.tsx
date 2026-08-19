@@ -59,9 +59,28 @@ export default async function DashboardPage() {
 
       <StatsSummary jobs={jobs} />
 
-      <YearlyStats jobs={jobs} />
+      <div className="yearly-monthly-row">
+        <div className="yearly-monthly-col">
+          <YearlyStats jobs={jobs} />
+        </div>
+        <div className="yearly-monthly-col">
+          <MonthlyStats jobs={jobs} />
+        </div>
+      </div>
 
-      <MonthlyStats jobs={jobs} />
+      <style>{`
+        @media (min-width: 800px) {
+          .yearly-monthly-row {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+          }
+          .yearly-monthly-col {
+            flex: 1;
+            min-width: 0;
+          }
+        }
+      `}</style>
 
       <div style={{ marginBottom: 16 }}>
         <a href="/api/dashboard/export" style={{ fontSize: 14 }}>
