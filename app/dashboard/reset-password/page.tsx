@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import PasswordInput from "../PasswordInput";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -59,21 +60,25 @@ function ResetPasswordForm() {
     <form onSubmit={handleSubmit}>
       <div style={{ marginBottom: 12 }}>
         <label style={{ display: "block", marginBottom: 4 }}>新しいパスワード(8文字以上)</label>
-        <input
-          type="password"
+        <PasswordInput
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={setNewPassword}
+          autoComplete="new-password"
+          autoFocus
           style={inputStyle}
         />
       </div>
       <div style={{ marginBottom: 12 }}>
         <label style={{ display: "block", marginBottom: 4 }}>新しいパスワード(確認)</label>
-        <input
-          type="password"
+        <PasswordInput
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={setConfirmPassword}
+          autoComplete="new-password"
           style={inputStyle}
         />
+        {confirmPassword && newPassword !== confirmPassword && (
+          <p style={{ color: "#b91c1c", fontSize: 12, marginTop: 4 }}>パスワードが一致しません</p>
+        )}
       </div>
       {error && <p style={{ color: "red", marginBottom: 12 }}>{error}</p>}
       <button type="submit" disabled={submitting} style={{ width: "100%", padding: 8 }}>

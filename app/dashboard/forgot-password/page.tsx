@@ -36,6 +36,9 @@ export default function ForgotPasswordPage() {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoFocus
+              required
               style={inputStyle}
             />
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PasswordInput from "../PasswordInput";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -40,16 +41,19 @@ export default function LoginPage() {
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            style={{ width: "100%", padding: 8 }}
+            autoComplete="username"
+            autoFocus
+            required
+            style={{ width: "100%", padding: 8, boxSizing: "border-box" }}
           />
         </div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ display: "block", marginBottom: 4 }}>パスワード</label>
-          <input
-            type="password"
+          <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: 8 }}
+            onChange={setPassword}
+            autoComplete="current-password"
+            style={{ width: "100%", padding: 8, boxSizing: "border-box" }}
           />
         </div>
         {error && <p style={{ color: "red", marginBottom: 12 }}>{error}</p>}
