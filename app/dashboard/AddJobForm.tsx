@@ -28,9 +28,17 @@ export default function AddJobForm() {
   const [extractError, setExtractError] = useState<string | null>(null);
   const [values, setValues] = useState(EMPTY);
   const [submitting, setSubmitting] = useState(false);
+  const [justFilled, setJustFilled] = useState<Set<string>>(new Set());
 
   function set<K extends keyof typeof values>(key: K, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function reset() {
+    setValues(EMPTY);
+    setMemo("");
+    setExtractError(null);
+    setJustFilled(new Set());
   }
 
   async function handleExtract() {
@@ -55,6 +63,20 @@ export default function AddJobForm() {
       address: body.address ?? prev.address,
       workType: body.workType ?? prev.workType,
     }));
+    const filled = new Set<string>();
+    if (body.name) filled.add("name");
+    if (body.phone) filled.add("phone");
+    if (body.address) filled.add("address");
+    if (body.workType) filled.add("workType");
+    setJustFilled(filled);
+    setTimeout(() => setJustFilled(new Set()), 1800);
+  }
+
+  function handleMemoKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleExtract();
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -75,14 +97,21 @@ export default function AddJobForm() {
     });
     setSubmitting(false);
     if (res.ok) {
-      setValues(EMPTY);
-      setMemo("");
+      reset();
       setOpen(false);
       router.refresh();
     }
   }
 
   const inputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
+
+  function fieldStyle(name: string) {
+    return {
+      ...inputStyle,
+      backgroundColor: justFilled.has(name) ? "#fef9c3" : "#fff",
+      transition: "background-color 0.6s ease",
+    };
+  }
 
   if (!open) {
     return (
@@ -106,43 +135,47 @@ export default function AddJobForm() {
         <textarea
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
+          onKeyDown={handleMemoKeyDown}
+          autoFocus
           rows={3}
           placeholder="例: 山田さん 090-1234-5678 横浜市西区 エアコン故障 急ぎ"
           style={{ ...inputStyle, backgroundColor: "#fff" }}
         />
-        <button
-          type="button"
-          onClick={handleExtract}
-          disabled={extracting || !memo.trim()}
-          style={{ marginTop: 6 }}
-        >
-          {extracting ? "AIが読み取り中..." : "AIで自動入力"}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+          <button type="button" onClick={handleExtract} disabled={extracting || !memo.trim()}>
+            {extracting ? "AIが読み取り中..." : "AIで自動入力"}
+          </button>
+          <span style={{ fontSize: 11, color: "#999" }}>(Ctrl+Enter / ⌘+Enterでも実行できます)</span>
+        </div>
         {extractError && <p style={{ color: "red", fontSize: 12, marginTop: 6 }}>{extractError}</p>}
       </div>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: 12 }}>
-        内容を確認・修正してから追加してください。
+        内容を確認・修正してから追加してください。(黄色の項目はAIが自動入力しました)
       </p>
 
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>お名前</label>
-        <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
+        <input value={values.name} onChange={(e) => set("name", e.target.value)} style={fieldStyle("name")} />
       </div>
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>電話番号</label>
-        <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={inputStyle} />
+        <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={fieldStyle("phone")} />
       </div>
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>住所</label>
-        <input value={values.address} onChange={(e) => set("address", e.target.value)} style={inputStyle} />
+        <input
+          value={values.address}
+          onChange={(e) => set("address", e.target.value)}
+          style={fieldStyle("address")}
+        />
       </div>
       <div style={{ marginTop: 10 }}>
         <label style={{ display: "block", fontSize: 12, color: "#666", marginBottom: 2 }}>作業内容</label>
         <input
           value={values.workType}
           onChange={(e) => set("workType", e.target.value)}
-          style={inputStyle}
+          style={fieldStyle("workType")}
         />
       </div>
       <div style={{ marginTop: 10 }}>
@@ -189,7 +222,13 @@ export default function AddJobForm() {
         <button type="submit" disabled={submitting}>
           {submitting ? "追加中..." : "追加する"}
         </button>
-        <button type="button" onClick={() => setOpen(false)}>
+        <button
+          type="button"
+          onClick={() => {
+            reset();
+            setOpen(false);
+          }}
+        >
           キャンセル
         </button>
       </div>
