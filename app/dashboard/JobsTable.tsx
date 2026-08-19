@@ -650,15 +650,83 @@ function matchesFilter(job: JobRow, filter: string): boolean {
   return job.status === filter;
 }
 
+type SortKey = "jobNumber" | "createdAt" | "status" | "name" | "scheduledAt" | "quoteAmount" | "invoiceAmount";
+
+function sortValue(job: JobRow, key: SortKey): string | number {
+  switch (key) {
+    case "jobNumber":
+      return job.jobNumber ?? -1;
+    case "createdAt":
+      return job.createdAt ?? "";
+    case "status":
+      return job.status ?? "";
+    case "name":
+      return job.name ?? "";
+    case "scheduledAt":
+      return job.scheduledAt ?? "";
+    case "quoteAmount":
+      return job.quoteAmount ?? -1;
+    case "invoiceAmount":
+      return job.invoiceAmount ?? -1;
+  }
+}
+
+function SortableHeader({
+  label,
+  sortKey,
+  currentKey,
+  direction,
+  onSort,
+}: {
+  label: string;
+  sortKey: SortKey;
+  currentKey: SortKey | null;
+  direction: "asc" | "desc";
+  onSort: (key: SortKey) => void;
+}) {
+  const active = currentKey === sortKey;
+  return (
+    <th
+      style={{ padding: 8, cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
+      onClick={() => onSort(sortKey)}
+    >
+      {label}
+      <span style={{ marginLeft: 4, color: active ? "#1e40af" : "#bbb", fontSize: 11 }}>
+        {active ? (direction === "asc" ? "▲" : "▼") : "▲▼"}
+      </span>
+    </th>
+  );
+}
+
 export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   if (jobs.length === 0) {
     return <p>まだ案件がありません。</p>;
   }
 
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
   const filteredJobs = jobs.filter((job) => matchesSearch(job, search) && matchesFilter(job, filter));
+
+  if (sortKey) {
+    filteredJobs.sort((a, b) => {
+      const va = sortValue(a, sortKey);
+      const vb = sortValue(b, sortKey);
+      const cmp = typeof va === "number" && typeof vb === "number" ? va - vb : String(va).localeCompare(String(vb));
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }
 
   return (
     <div>
@@ -698,18 +766,36 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
-              <th style={{ padding: 8 }}>No.</th>
-              <th style={{ padding: 8 }}>受付日時</th>
-              <th style={{ padding: 8 }}>状態</th>
-              <th style={{ padding: 8 }}>お名前</th>
+              <SortableHeader label="No." sortKey="jobNumber" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
+              <SortableHeader label="受付日時" sortKey="createdAt" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
+              <SortableHeader label="状態" sortKey="status" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
+              <SortableHeader label="お名前" sortKey="name" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
               <th style={{ padding: 8 }}>電話番号</th>
               <th style={{ padding: 8 }}>住所</th>
               <th style={{ padding: 8 }}>作業内容</th>
-              <th style={{ padding: 8 }}>訪問予定日時</th>
+              <SortableHeader
+                label="訪問予定日時"
+                sortKey="scheduledAt"
+                currentKey={sortKey}
+                direction={sortDir}
+                onSort={handleSort}
+              />
               <th style={{ padding: 8 }}>写真</th>
               <th style={{ padding: 8 }}>作業報告</th>
-              <th style={{ padding: 8 }}>見積額</th>
-              <th style={{ padding: 8 }}>請求額</th>
+              <SortableHeader
+                label="見積額"
+                sortKey="quoteAmount"
+                currentKey={sortKey}
+                direction={sortDir}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                label="請求額"
+                sortKey="invoiceAmount"
+                currentKey={sortKey}
+                direction={sortDir}
+                onSort={handleSort}
+              />
               <th style={{ padding: 8 }}>入金</th>
               <th style={{ padding: 8 }}>備考</th>
               <th style={{ padding: 8 }}></th>
