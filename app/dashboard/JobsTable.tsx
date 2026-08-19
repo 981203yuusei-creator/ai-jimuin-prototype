@@ -47,6 +47,28 @@ function formatJstTime(value: string | null): string | null {
     : null;
 }
 
+function jstDateKey(value: string | Date): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(
+    typeof value === "string" ? new Date(value) : value
+  );
+}
+
+function scheduleUrgency(scheduledAt: string | null): "today" | "tomorrow" | null {
+  if (!scheduledAt) return null;
+  const target = jstDateKey(scheduledAt);
+  const now = new Date();
+  const todayKey = jstDateKey(now);
+  const tomorrowKey = jstDateKey(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+  if (target === todayKey) return "today";
+  if (target === tomorrowKey) return "tomorrow";
+  return null;
+}
+
+const URGENCY_COLORS: Record<"today" | "tomorrow", string> = {
+  today: "#fee2e2",
+  tomorrow: "#fef9c3",
+};
+
 const STATUS_OPTIONS = [
   { value: "collecting", label: "受付中" },
   { value: "completed", label: "受付完了(対応待ち)" },
@@ -353,19 +375,41 @@ function EditableRow({ job }: { job: JobRow }) {
     handleDelete,
   } = useEditableJob(job);
   const inputStyle = { width: "100%", padding: 4, boxSizing: "border-box" as const };
+  const urgency = scheduleUrgency(job.scheduledAt);
+  const rowBg = urgency ? URGENCY_COLORS[urgency] : "#fff";
 
   if (deleted) return null;
 
   return (
-    <tr style={{ borderBottom: "1px solid #eee" }}>
-      <td style={{ padding: 8, whiteSpace: "nowrap" }}>{job.jobNumber ?? "-"}</td>
+    <tr style={{ borderBottom: "1px solid #eee", backgroundColor: rowBg }}>
+      <td
+        style={{
+          padding: 8,
+          whiteSpace: "nowrap",
+          position: "sticky",
+          left: 0,
+          backgroundColor: rowBg,
+          width: 50,
+        }}
+      >
+        {job.jobNumber ?? "-"}
+      </td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
         {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
       </td>
       <td style={{ padding: 8, minWidth: 140 }}>
         <StatusSelect value={values.status} onChange={handleStatusChange} style={{ minWidth: 90 }} />
       </td>
-      <td style={{ padding: 8, minWidth: 110 }}>
+      <td
+        style={{
+          padding: 8,
+          minWidth: 110,
+          position: "sticky",
+          left: 50,
+          backgroundColor: rowBg,
+          boxShadow: "2px 0 2px -1px rgba(0,0,0,0.15)",
+        }}
+      >
         <input
           value={values.name}
           onChange={(e) => set("name", e.target.value)}
@@ -398,6 +442,22 @@ function EditableRow({ job }: { job: JobRow }) {
         />
       </td>
       <td style={{ padding: 8, minWidth: 230 }}>
+        {urgency && (
+          <span
+            style={{
+              display: "inline-block",
+              fontSize: 11,
+              fontWeight: 700,
+              padding: "1px 6px",
+              borderRadius: 3,
+              marginBottom: 3,
+              backgroundColor: urgency === "today" ? "#dc2626" : "#ca8a04",
+              color: "#fff",
+            }}
+          >
+            {urgency === "today" ? "本日" : "明日"}
+          </span>
+        )}
         <ScheduleInputs
           date={values.scheduledDate}
           time={values.scheduledTime}
@@ -502,13 +562,39 @@ function JobCard({ job }: { job: JobRow }) {
     handleDelete,
   } = useEditableJob(job);
   const cardInputStyle = { width: "100%", padding: 8, boxSizing: "border-box" as const, fontSize: 16 };
+  const urgency = scheduleUrgency(job.scheduledAt);
 
   if (deleted) return null;
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+    <div
+      style={{
+        border: "1px solid #ddd",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 12,
+        backgroundColor: urgency ? URGENCY_COLORS[urgency] : "#fff",
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 13, fontWeight: 600 }}>No. {job.jobNumber ?? "-"}</span>
+        <span style={{ fontSize: 13, fontWeight: 600 }}>
+          No. {job.jobNumber ?? "-"}
+          {urgency && (
+            <span
+              style={{
+                marginLeft: 8,
+                fontSize: 11,
+                fontWeight: 700,
+                padding: "1px 6px",
+                borderRadius: 3,
+                backgroundColor: urgency === "today" ? "#dc2626" : "#ca8a04",
+                color: "#fff",
+              }}
+            >
+              {urgency === "today" ? "本日" : "明日"}
+            </span>
+          )}
+        </span>
         <span style={{ fontSize: 12, color: "#666" }}>
           {new Date(job.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </span>
@@ -677,17 +763,27 @@ function SortableHeader({
   currentKey,
   direction,
   onSort,
+  stickyLeft,
 }: {
   label: string;
   sortKey: SortKey;
   currentKey: SortKey | null;
   direction: "asc" | "desc";
   onSort: (key: SortKey) => void;
+  stickyLeft?: number;
 }) {
   const active = currentKey === sortKey;
   return (
     <th
-      style={{ padding: 8, cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
+      style={{
+        padding: 8,
+        cursor: "pointer",
+        userSelect: "none",
+        whiteSpace: "nowrap",
+        ...(stickyLeft !== undefined
+          ? { position: "sticky" as const, left: stickyLeft, backgroundColor: "#fff", zIndex: 1 }
+          : {}),
+      }}
       onClick={() => onSort(sortKey)}
     >
       {label}
@@ -766,10 +862,10 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr style={{ textAlign: "left", borderBottom: "2px solid #ccc" }}>
-              <SortableHeader label="No." sortKey="jobNumber" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
+              <SortableHeader label="No." sortKey="jobNumber" currentKey={sortKey} direction={sortDir} onSort={handleSort} stickyLeft={0} />
               <SortableHeader label="受付日時" sortKey="createdAt" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
               <SortableHeader label="状態" sortKey="status" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
-              <SortableHeader label="お名前" sortKey="name" currentKey={sortKey} direction={sortDir} onSort={handleSort} />
+              <SortableHeader label="お名前" sortKey="name" currentKey={sortKey} direction={sortDir} onSort={handleSort} stickyLeft={50} />
               <th style={{ padding: 8 }}>電話番号</th>
               <th style={{ padding: 8 }}>住所</th>
               <th style={{ padding: 8 }}>作業内容</th>
