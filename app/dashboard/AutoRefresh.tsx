@@ -9,7 +9,14 @@ export default function AutoRefresh() {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setInterval(() => router.refresh(), REFRESH_INTERVAL_MS);
+    const timer = setInterval(() => {
+      const active = document.activeElement;
+      const isEditing =
+        active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT");
+      if (!isEditing) {
+        router.refresh();
+      }
+    }, REFRESH_INTERVAL_MS);
     return () => clearInterval(timer);
   }, [router]);
 

@@ -111,6 +111,11 @@ function useEditableJob(job: JobRow) {
     return save();
   }
 
+  // テキスト系の項目は、入力欄からフォーカスが外れた瞬間に自動保存する(Excelのセル移動時の確定と同じ挙動)。
+  function handleBlurSave() {
+    save();
+  }
+
   // ステータスは選択した瞬間に保存する(「保存」の押し忘れで元に戻ったように見える事故を防ぐ)。
   function handleStatusChange(newStatus: string) {
     set("status", newStatus);
@@ -141,6 +146,7 @@ function useEditableJob(job: JobRow) {
     saving,
     savedAt,
     handleSave,
+    handleBlurSave,
     handleStatusChange,
     handleIsPaidChange,
     deleting,
@@ -299,12 +305,14 @@ function ScheduleInputs({
   time,
   onDateChange,
   onTimeChange,
+  onBlur,
   style,
 }: {
   date: string;
   time: string;
   onDateChange: (v: string) => void;
   onTimeChange: (v: string) => void;
+  onBlur?: () => void;
   style?: React.CSSProperties;
 }) {
   return (
@@ -313,12 +321,14 @@ function ScheduleInputs({
         type="date"
         value={date}
         onChange={(e) => onDateChange(e.target.value)}
+        onBlur={onBlur}
         style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 120 }}
       />
       <input
         type="time"
         value={time}
         onChange={(e) => onTimeChange(e.target.value)}
+        onBlur={onBlur}
         style={{ padding: 4, fontSize: 14, flex: 1, minWidth: 90 }}
       />
     </div>
@@ -331,7 +341,7 @@ function EditableRow({ job }: { job: JobRow }) {
     set,
     saving,
     savedAt,
-    handleSave,
+    handleBlurSave,
     handleStatusChange,
     handleIsPaidChange,
     deleting,
@@ -352,16 +362,36 @@ function EditableRow({ job }: { job: JobRow }) {
         <StatusSelect value={values.status} onChange={handleStatusChange} style={{ minWidth: 90 }} />
       </td>
       <td style={{ padding: 8, minWidth: 110 }}>
-        <input value={values.name} onChange={(e) => set("name", e.target.value)} style={inputStyle} />
+        <input
+          value={values.name}
+          onChange={(e) => set("name", e.target.value)}
+          onBlur={handleBlurSave}
+          style={inputStyle}
+        />
       </td>
       <td style={{ padding: 8, minWidth: 130 }}>
-        <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={inputStyle} />
+        <input
+          value={values.phone}
+          onChange={(e) => set("phone", e.target.value)}
+          onBlur={handleBlurSave}
+          style={inputStyle}
+        />
       </td>
       <td style={{ padding: 8, minWidth: 160 }}>
-        <input value={values.address} onChange={(e) => set("address", e.target.value)} style={inputStyle} />
+        <input
+          value={values.address}
+          onChange={(e) => set("address", e.target.value)}
+          onBlur={handleBlurSave}
+          style={inputStyle}
+        />
       </td>
       <td style={{ padding: 8, minWidth: 140 }}>
-        <input value={values.workType} onChange={(e) => set("workType", e.target.value)} style={inputStyle} />
+        <input
+          value={values.workType}
+          onChange={(e) => set("workType", e.target.value)}
+          onBlur={handleBlurSave}
+          style={inputStyle}
+        />
       </td>
       <td style={{ padding: 8, minWidth: 230 }}>
         <ScheduleInputs
@@ -369,6 +399,7 @@ function EditableRow({ job }: { job: JobRow }) {
           time={values.scheduledTime}
           onDateChange={(v) => set("scheduledDate", v)}
           onTimeChange={(v) => set("scheduledTime", v)}
+          onBlur={handleBlurSave}
         />
       </td>
       <td style={{ padding: 8 }}>
@@ -388,6 +419,7 @@ function EditableRow({ job }: { job: JobRow }) {
           type="number"
           value={values.quoteAmount}
           onChange={(e) => set("quoteAmount", e.target.value)}
+          onBlur={handleBlurSave}
           placeholder="見積額"
           style={inputStyle}
         />
@@ -397,6 +429,7 @@ function EditableRow({ job }: { job: JobRow }) {
           type="number"
           value={values.invoiceAmount}
           onChange={(e) => set("invoiceAmount", e.target.value)}
+          onBlur={handleBlurSave}
           placeholder="請求額"
           style={inputStyle}
         />
@@ -413,6 +446,7 @@ function EditableRow({ job }: { job: JobRow }) {
         <input
           value={values.invoiceNote}
           onChange={(e) => set("invoiceNote", e.target.value)}
+          onBlur={handleBlurSave}
           placeholder="備考"
           style={inputStyle}
         />
@@ -424,10 +458,11 @@ function EditableRow({ job }: { job: JobRow }) {
         <InvoiceLinks jobId={job.id} />
       </td>
       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-        <button onClick={handleSave} disabled={saving}>
-          {saving ? "保存中..." : "保存"}
-        </button>
-        {savedAt && <span style={{ marginLeft: 6, color: "green" }}>✓</span>}
+        {saving ? (
+          <span style={{ color: "#888", fontSize: 12 }}>保存中...</span>
+        ) : savedAt ? (
+          <span style={{ color: "green", fontSize: 12 }}>✓ 保存済み</span>
+        ) : null}
         <button
           onClick={handleDelete}
           disabled={deleting}
@@ -455,7 +490,7 @@ function JobCard({ job }: { job: JobRow }) {
     set,
     saving,
     savedAt,
-    handleSave,
+    handleBlurSave,
     handleStatusChange,
     handleIsPaidChange,
     deleting,
@@ -478,18 +513,34 @@ function JobCard({ job }: { job: JobRow }) {
         <StatusSelect value={values.status} onChange={handleStatusChange} style={{ width: "100%" }} />
       </div>
       <Field label="お名前">
-        <input value={values.name} onChange={(e) => set("name", e.target.value)} style={cardInputStyle} />
+        <input
+          value={values.name}
+          onChange={(e) => set("name", e.target.value)}
+          onBlur={handleBlurSave}
+          style={cardInputStyle}
+        />
       </Field>
       <Field label="電話番号">
-        <input value={values.phone} onChange={(e) => set("phone", e.target.value)} style={cardInputStyle} />
+        <input
+          value={values.phone}
+          onChange={(e) => set("phone", e.target.value)}
+          onBlur={handleBlurSave}
+          style={cardInputStyle}
+        />
       </Field>
       <Field label="住所">
-        <input value={values.address} onChange={(e) => set("address", e.target.value)} style={cardInputStyle} />
+        <input
+          value={values.address}
+          onChange={(e) => set("address", e.target.value)}
+          onBlur={handleBlurSave}
+          style={cardInputStyle}
+        />
       </Field>
       <Field label="作業内容">
         <input
           value={values.workType}
           onChange={(e) => set("workType", e.target.value)}
+          onBlur={handleBlurSave}
           style={cardInputStyle}
         />
       </Field>
@@ -499,6 +550,7 @@ function JobCard({ job }: { job: JobRow }) {
           time={values.scheduledTime}
           onDateChange={(v) => set("scheduledDate", v)}
           onTimeChange={(v) => set("scheduledTime", v)}
+          onBlur={handleBlurSave}
           style={{ width: "100%" }}
         />
       </Field>
@@ -519,6 +571,7 @@ function JobCard({ job }: { job: JobRow }) {
           type="number"
           value={values.quoteAmount}
           onChange={(e) => set("quoteAmount", e.target.value)}
+          onBlur={handleBlurSave}
           style={cardInputStyle}
         />
       </Field>
@@ -527,6 +580,7 @@ function JobCard({ job }: { job: JobRow }) {
           type="number"
           value={values.invoiceAmount}
           onChange={(e) => set("invoiceAmount", e.target.value)}
+          onBlur={handleBlurSave}
           style={cardInputStyle}
         />
       </Field>
@@ -542,6 +596,7 @@ function JobCard({ job }: { job: JobRow }) {
         <textarea
           value={values.invoiceNote}
           onChange={(e) => set("invoiceNote", e.target.value)}
+          onBlur={handleBlurSave}
           rows={2}
           style={cardInputStyle}
         />
@@ -550,11 +605,12 @@ function JobCard({ job }: { job: JobRow }) {
         <ShareInstructionButton jobId={job.id} />
         <InvoiceLinks jobId={job.id} />
       </div>
-      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-        <button onClick={handleSave} disabled={saving} style={{ padding: "6px 12px" }}>
-          {saving ? "保存中..." : "保存"}
-        </button>
-        {savedAt && <span style={{ color: "green", alignSelf: "center" }}>✓</span>}
+      <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center", flexWrap: "wrap" }}>
+        {saving ? (
+          <span style={{ color: "#888", fontSize: 13 }}>保存中...</span>
+        ) : savedAt ? (
+          <span style={{ color: "green", fontSize: 13 }}>✓ 保存済み</span>
+        ) : null}
         <button
           onClick={handleDelete}
           disabled={deleting}
