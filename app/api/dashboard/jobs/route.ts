@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     quoteAmount: parseAmount(body.quoteAmount),
     invoiceAmount: parseAmount(body.invoiceAmount),
     invoiceNote: body.invoiceNote?.trim() || null,
+    isPaid: false,
   };
 
   let calendarEventId: string | null = null;

@@ -111,6 +111,7 @@ export type DashboardJob = {
   quoteAmount: number | null;
   invoiceAmount: number | null;
   invoiceNote: string | null;
+  isPaid: boolean;
 };
 
 function mapDashboardJob(data: any): DashboardJob {
@@ -134,6 +135,7 @@ function mapDashboardJob(data: any): DashboardJob {
     quoteAmount: data.quote_amount,
     invoiceAmount: data.invoice_amount,
     invoiceNote: data.invoice_note,
+    isPaid: data.is_paid ?? false,
   };
 }
 
@@ -176,6 +178,7 @@ export type JobEditableFields = {
   quoteAmount: number | null;
   invoiceAmount: number | null;
   invoiceNote: string | null;
+  isPaid: boolean;
 };
 
 export async function createManualJob(
@@ -199,6 +202,7 @@ export async function createManualJob(
       quote_amount: fields.quoteAmount,
       invoice_amount: fields.invoiceAmount,
       invoice_note: fields.invoiceNote,
+      is_paid: fields.isPaid,
     })
     .select()
     .maybeSingle();
@@ -229,6 +233,7 @@ export async function updateJobForCompany(
       quote_amount: fields.quoteAmount,
       invoice_amount: fields.invoiceAmount,
       invoice_note: fields.invoiceNote,
+      is_paid: fields.isPaid,
       updated_at: new Date().toISOString(),
     })
     .eq("company_id", companyId)

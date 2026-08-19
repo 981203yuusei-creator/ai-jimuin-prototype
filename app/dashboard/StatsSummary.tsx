@@ -11,17 +11,21 @@ function isThisMonthJst(iso: string): boolean {
 export default function StatsSummary({
   jobs,
 }: {
-  jobs: { status: string; createdAt: string }[];
+  jobs: { status: string; createdAt: string; invoiceAmount?: number | null; isPaid?: boolean }[];
 }) {
   const thisMonthJobs = jobs.filter((j) => isThisMonthJst(j.createdAt));
   const newThisMonth = thisMonthJobs.length;
   const doneThisMonth = thisMonthJobs.filter((j) => j.status === "done").length;
   const waiting = jobs.filter((j) => j.status === "collecting" || j.status === "completed").length;
+  const unpaidTotal = jobs
+    .filter((j) => !j.isPaid && j.invoiceAmount)
+    .reduce((sum, j) => sum + (j.invoiceAmount ?? 0), 0);
 
   const stats = [
     { label: "今月の新規受付", value: newThisMonth },
     { label: "今月の作業完了", value: doneThisMonth },
     { label: "現在対応待ち", value: waiting },
+    { label: "未回収金額", value: `¥${unpaidTotal.toLocaleString("ja-JP")}` },
   ];
 
   return (

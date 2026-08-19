@@ -23,6 +23,7 @@ export type JobRow = {
   quoteAmount: number | null;
   invoiceAmount: number | null;
   invoiceNote: string | null;
+  isPaid: boolean;
 };
 
 function formatJstDate(value: string | null): string | null {
@@ -70,6 +71,7 @@ function useEditableJob(job: JobRow) {
     quoteAmount: job.quoteAmount?.toString() ?? "",
     invoiceAmount: job.invoiceAmount?.toString() ?? "",
     invoiceNote: job.invoiceNote ?? "",
+    isPaid: job.isPaid,
   });
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
@@ -96,6 +98,7 @@ function useEditableJob(job: JobRow) {
         quoteAmount: current.quoteAmount,
         invoiceAmount: current.invoiceAmount,
         invoiceNote: current.invoiceNote,
+        isPaid: current.isPaid,
       }),
     });
     setSaving(false);
@@ -112,6 +115,12 @@ function useEditableJob(job: JobRow) {
   function handleStatusChange(newStatus: string) {
     set("status", newStatus);
     save({ status: newStatus });
+  }
+
+  // 入金済みチェックも同様に、チェックした瞬間に保存する。
+  function handleIsPaidChange(newIsPaid: boolean) {
+    setValues((prev) => ({ ...prev, isPaid: newIsPaid }));
+    save({ isPaid: newIsPaid });
   }
 
   async function handleDelete() {
@@ -133,6 +142,7 @@ function useEditableJob(job: JobRow) {
     savedAt,
     handleSave,
     handleStatusChange,
+    handleIsPaidChange,
     deleting,
     deleted,
     handleDelete,
@@ -323,6 +333,7 @@ function EditableRow({ job }: { job: JobRow }) {
     savedAt,
     handleSave,
     handleStatusChange,
+    handleIsPaidChange,
     deleting,
     deleted,
     handleDelete,
@@ -390,6 +401,14 @@ function EditableRow({ job }: { job: JobRow }) {
           style={inputStyle}
         />
       </td>
+      <td style={{ padding: 8, textAlign: "center" }}>
+        <input
+          type="checkbox"
+          checked={values.isPaid}
+          onChange={(e) => handleIsPaidChange(e.target.checked)}
+          style={{ width: 18, height: 18 }}
+        />
+      </td>
       <td style={{ padding: 8, minWidth: 140 }}>
         <input
           value={values.invoiceNote}
@@ -438,6 +457,7 @@ function JobCard({ job }: { job: JobRow }) {
     savedAt,
     handleSave,
     handleStatusChange,
+    handleIsPaidChange,
     deleting,
     deleted,
     handleDelete,
@@ -510,6 +530,14 @@ function JobCard({ job }: { job: JobRow }) {
           style={cardInputStyle}
         />
       </Field>
+      <Field label="入金済み">
+        <input
+          type="checkbox"
+          checked={values.isPaid}
+          onChange={(e) => handleIsPaidChange(e.target.checked)}
+          style={{ width: 20, height: 20 }}
+        />
+      </Field>
       <Field label="備考(見積書・請求書に表示)">
         <textarea
           value={values.invoiceNote}
@@ -562,6 +590,7 @@ export default function JobsTable({ jobs }: { jobs: JobRow[] }) {
               <th style={{ padding: 8 }}>作業報告</th>
               <th style={{ padding: 8 }}>見積額</th>
               <th style={{ padding: 8 }}>請求額</th>
+              <th style={{ padding: 8 }}>入金</th>
               <th style={{ padding: 8 }}>備考</th>
               <th style={{ padding: 8 }}></th>
               <th style={{ padding: 8 }}></th>

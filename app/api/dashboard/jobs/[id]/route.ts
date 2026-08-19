@@ -43,6 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     quoteAmount: parseAmount(body.quoteAmount),
     invoiceAmount: parseAmount(body.invoiceAmount),
     invoiceNote: body.invoiceNote?.trim() || null,
+    isPaid: Boolean(body.isPaid),
   };
 
   const jobState = {
