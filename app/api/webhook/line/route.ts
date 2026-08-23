@@ -173,6 +173,21 @@ export async function POST(req: NextRequest) {
       } catch (replyErr) {
         console.error("Fallback reply also failed:", replyErr);
       }
+      // お客様への返信は失敗時用の定型文で済むが、それだけだと事業主は
+      // 対応漏れに気づけない。オーナー登録済みなら異常発生をLINEで知らせる。
+      try {
+        await notifyOwner(
+          company,
+          [
+            "【エラー通知】",
+            "お客様からのメッセージ処理中にエラーが発生しました。",
+            "お客様には「混み合っている」旨の自動返信のみ送られています。",
+            "お手数ですが、該当のお客様に直接ご確認・ご連絡をお願いします。",
+          ].join("\n")
+        );
+      } catch (notifyErr) {
+        console.error("Owner error notification also failed:", notifyErr);
+      }
     }
   }
 
