@@ -88,6 +88,7 @@ function SignupForm() {
             value={password}
             onChange={setPassword}
             autoComplete="new-password"
+            minLength={8}
             style={inputStyle}
           />
         </div>

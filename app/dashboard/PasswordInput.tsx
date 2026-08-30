@@ -7,12 +7,14 @@ export default function PasswordInput({
   onChange,
   autoComplete,
   autoFocus,
+  minLength,
   style,
 }: {
   value: string;
   onChange: (v: string) => void;
   autoComplete?: string;
   autoFocus?: boolean;
+  minLength?: number;
   style?: React.CSSProperties;
 }) {
   const [visible, setVisible] = useState(false);
@@ -25,6 +27,7 @@ export default function PasswordInput({
         onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete}
         autoFocus={autoFocus}
+        minLength={minLength}
         required
         style={{ ...style, paddingRight: 56 }}
       />

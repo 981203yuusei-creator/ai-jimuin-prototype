@@ -65,6 +65,7 @@ function ResetPasswordForm() {
           onChange={setNewPassword}
           autoComplete="new-password"
           autoFocus
+          minLength={8}
           style={inputStyle}
         />
       </div>

@@ -77,6 +77,7 @@ export default function ChangePasswordForm() {
           value={newPassword}
           onChange={setNewPassword}
           autoComplete="new-password"
+          minLength={8}
           style={inputStyle}
         />
       </div>
