@@ -1,3 +1,5 @@
+import CopyableCode from "./CopyableCode";
+
 const CALENDAR_SHARE_EMAIL = "jimuassi-calendar@gen-lang-client-0003463102.iam.gserviceaccount.com";
 const WEBHOOK_URL = "https://ai-jimuin-prototype-shimo1.vercel.app/api/webhook/line";
 
@@ -16,26 +18,6 @@ function Step({
         STEP {number}. {title}
       </h2>
       <div style={{ fontSize: 14, lineHeight: 1.9 }}>{children}</div>
-    </div>
-  );
-}
-
-function Code({ children }: { children: string }) {
-  return (
-    <div
-      style={{
-        backgroundColor: "#f3f4f6",
-        border: "1px solid #ddd",
-        borderRadius: 4,
-        padding: "8px 12px",
-        fontFamily: "monospace",
-        fontSize: 13,
-        wordBreak: "break-all",
-        marginTop: 6,
-        marginBottom: 6,
-      }}
-    >
-      {children}
     </div>
   );
 }
@@ -108,7 +90,7 @@ export default function LineSetupGuidePage() {
         <ol>
           <li>
             「Webhook URL」の欄に、下記のURLを入力して「更新」を押す
-            <Code>{WEBHOOK_URL}</Code>
+            <CopyableCode>{WEBHOOK_URL}</CopyableCode>
           </li>
           <li>「Webhookの利用」のスイッチをオンにする</li>
           <li>
@@ -126,7 +108,7 @@ export default function LineSetupGuidePage() {
           <li>
             そのカレンダーの「設定と共有」を開き、「特定のユーザーとの共有」に以下のメールアドレスを
             「予定の変更権限」で追加する
-            <Code>{CALENDAR_SHARE_EMAIL}</Code>
+            <CopyableCode>{CALENDAR_SHARE_EMAIL}</CopyableCode>
           </li>
           <li>同じ設定画面の下の方「カレンダーの統合」欄にある「カレンダーID」をコピーする</li>
         </ol>
@@ -134,8 +116,14 @@ export default function LineSetupGuidePage() {
 
       <Step number={6} title="ジムアシに登録する">
         <ol>
-          <li>ジムアシのダッシュボードにログインする</li>
-          <li>右上の「設定」を開き、「LINE連携設定」の欄に、STEP3・STEP5でコピーした値をそれぞれ入力する</li>
+          <li>
+            ジムアシの{" "}
+            <a href="/dashboard/settings" target="_blank" rel="noreferrer">
+              設定画面
+            </a>{" "}
+            を開く(ログインが必要です)
+          </li>
+          <li>「LINE連携設定」の欄に、STEP3・STEP5でコピーした値をそれぞれ入力する</li>
           <li>「保存」を押す</li>
           <li>
             LINE公式アカウントを「友だち追加」し、実際にメッセージを送って、返信が届くか確認する
