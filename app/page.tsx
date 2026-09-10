@@ -151,15 +151,20 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
       />
 
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px", maxWidth: 1100, margin: "0 auto" }}>
-        <span style={{ fontSize: 18, fontWeight: 800, color: "#1e3a8a" }}>ジムアシ</span>
-        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-          <a href="/blog" style={{ fontSize: 14, color: "#334155", textDecoration: "none" }}>
-            コラム
-          </a>
-          <a href="/dashboard/login" style={{ fontSize: 14, color: "#334155", textDecoration: "none" }}>
-            ログイン
-          </a>
+      <header className="site-header">
+        <div className="site-header-inner">
+          <span style={{ fontSize: 18, fontWeight: 800, color: "#1e3a8a" }}>ジムアシ</span>
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <a href="/blog" className="header-link header-link-blog">
+              コラム
+            </a>
+            <a href="/dashboard/login" className="header-link">
+              ログイン
+            </a>
+            <a href="/signup" className="header-cta">
+              無料で試す
+            </a>
+          </div>
         </div>
       </header>
 
@@ -235,6 +240,15 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section style={{ textAlign: "center", padding: "8px 20px 48px" }}>
+        <a href="/signup" className="cta-button">
+          30日間無料で試してみる
+        </a>
+        <p style={{ fontSize: 13, color: "#666", marginTop: 12 }}>
+          クレジットカード登録のみ・トライアル中は課金なし
+        </p>
       </section>
 
       <section style={{ maxWidth: 700, margin: "0 auto", padding: "56px 20px" }}>
@@ -316,6 +330,38 @@ export default function Home() {
       </footer>
 
       <style>{`
+        .site-header {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(6px);
+          border-bottom: 1px solid #e8eef7;
+        }
+        .site-header-inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 24px;
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .header-link {
+          font-size: 14px;
+          color: #334155;
+          text-decoration: none;
+        }
+        .header-cta {
+          display: inline-block;
+          padding: 8px 16px;
+          background-color: #2563eb;
+          color: #fff;
+          border-radius: 6px;
+          font-weight: 700;
+          text-decoration: none;
+          font-size: 14px;
+          white-space: nowrap;
+        }
         .section-title {
           font-size: 22px;
           text-align: center;
@@ -470,6 +516,12 @@ export default function Home() {
           }
           .referral-grid {
             grid-template-columns: 1fr;
+          }
+          .site-header-inner {
+            padding: 10px 16px;
+          }
+          .header-link-blog {
+            display: none;
           }
         }
       `}</style>
