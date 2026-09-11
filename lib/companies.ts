@@ -119,6 +119,24 @@ export async function createPendingCompany(fields: {
   return data ? mapRow(data) : null;
 }
 
+// Stripeの決済ページ作成に失敗した場合など、作成した仮登録をロールバックするために使う。
+// これをしないと、ユーザー名だけが使用済み扱いのまま残ってしまい、再申込みができなくなる。
+// referralsテーブルがcompaniesを外部キー参照しているため、紹介コード付きの申込みだった場合は
+// 先に紐づく紹介レコードを消してから会社を削除する(順序を守らないと外部キー制約で削除に失敗する)。
+export async function deletePendingCompany(id: string): Promise<void> {
+  const db = getSupabase();
+
+  const { error: referralError } = await db.from("referrals").delete().eq("referred_company_id", id);
+  if (referralError) {
+    console.error("deletePendingCompany: failed to clean up referral row:", referralError);
+  }
+
+  const { error } = await db.from("companies").delete().eq("id", id).eq("subscription_status", "pending");
+  if (error) {
+    console.error("deletePendingCompany failed:", error);
+  }
+}
+
 export async function getCompanyByReferralCode(code: string): Promise<Company | null> {
   const { data, error } = await getSupabase()
     .from("companies")

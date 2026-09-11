@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import {
   createPendingCompany,
+  deletePendingCompany,
   getCompanyByDashboardUsername,
   getCompanyByReferralCode,
 } from "../../../lib/companies";
@@ -44,21 +45,30 @@ export async function POST(req: NextRequest) {
   }
 
   const origin = new URL(req.url).origin;
-  const session = await getStripe().checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-    customer_email: email,
-    client_reference_id: company.id,
-    metadata: { companyId: company.id },
-    subscription_data: { trial_period_days: 30, metadata: { companyId: company.id } },
-    ...(referrer ? { discounts: [{ coupon: REFERRED_DISCOUNT_COUPON_ID }] } : {}),
-    success_url: `${origin}/signup/complete`,
-    cancel_url: `${origin}/signup`,
-  });
 
-  if (!session.url) {
-    return NextResponse.json({ error: "決済ページの作成に失敗しました" }, { status: 500 });
+  try {
+    const session = await getStripe().checkout.sessions.create({
+      mode: "subscription",
+      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+      customer_email: email,
+      client_reference_id: company.id,
+      metadata: { companyId: company.id },
+      subscription_data: { trial_period_days: 30, metadata: { companyId: company.id } },
+      ...(referrer ? { discounts: [{ coupon: REFERRED_DISCOUNT_COUPON_ID }] } : {}),
+      success_url: `${origin}/signup/complete`,
+      cancel_url: `${origin}/signup`,
+    });
+
+    if (!session.url) {
+      throw new Error("checkout session has no url");
+    }
+
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    // 決済ページの作成に失敗した場合、仮登録した会社を削除してユーザー名を解放する。
+    // これをしないと、同じユーザー名で再申込みしようとした際に「使用済み」で弾かれてしまう。
+    console.error("Stripe checkout session creation failed:", err);
+    await deletePendingCompany(company.id);
+    return NextResponse.json({ error: "決済ページの作成に失敗しました。もう一度お試しください。" }, { status: 500 });
   }
-
-  return NextResponse.json({ url: session.url });
 }
