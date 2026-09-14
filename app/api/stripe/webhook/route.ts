@@ -7,6 +7,7 @@ import {
   getCompanyByStripeSubscriptionId,
 } from "../../../../lib/companies";
 import { handleReferredInvoicePaid, invalidatePendingReferral } from "../../../../lib/referrals";
+import { notifyOwner } from "../../../../lib/notify";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -37,6 +38,21 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
         await updateSubscriptionStatus(subscription.id, subscription.status);
+
+        if (subscription.status === "past_due" || subscription.status === "unpaid") {
+          const company = await getCompanyByStripeSubscriptionId(subscription.id);
+          if (company) {
+            await notifyOwner(
+              company,
+              [
+                "【お支払いエラー】",
+                "ご登録のクレジットカードでの決済に失敗しました。",
+                "このままだとジムアシのご利用が停止されます。",
+                "お手数ですが、ダッシュボードからお支払い方法をご確認・更新してください。",
+              ].join("\n")
+            );
+          }
+        }
         break;
       }
       case "customer.subscription.deleted": {

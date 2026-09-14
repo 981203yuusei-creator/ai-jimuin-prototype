@@ -10,6 +10,7 @@ import StatsSummary from "./StatsSummary";
 import MonthlyStats from "./MonthlyStats";
 import YearlyStats from "./YearlyStats";
 import FontSizeControl from "./FontSizeControl";
+import BillingPortalButton from "./BillingPortalButton";
 
 export default async function DashboardPage() {
   const companyId = headers().get("x-company-id") ?? "";
@@ -19,17 +20,29 @@ export default async function DashboardPage() {
   ]);
 
   if (company && !isSubscriptionUsable(company.subscriptionStatus)) {
-    const isPending = company.subscriptionStatus === "pending";
+    const status = company.subscriptionStatus;
+    const isPending = status === "pending";
+    // past_due/unpaid はStripeがカード決済を再試行している途中の状態で、
+    // まだ解約は確定していない。「解約済み」と誤解させないよう分けて案内する。
+    const isPaymentIssue = status === "past_due" || status === "unpaid";
+
     return (
       <div style={{ maxWidth: 400, margin: "80px auto", fontFamily: "sans-serif", padding: "0 16px", textAlign: "center" }}>
         <h1 style={{ fontSize: 18, marginBottom: 16 }}>
-          {isPending ? "お支払いの確認待ちです" : "ご契約は終了しています"}
+          {isPending ? "お支払いの確認待ちです" : isPaymentIssue ? "お支払いに問題が発生しています" : "ご契約は終了しています"}
         </h1>
         <p style={{ fontSize: 14, color: "#333" }}>
           {isPending
             ? "お支払いの確認が完了すると、自動的にダッシュボードをご利用いただけるようになります。しばらく経っても表示されない場合はお問い合わせください。"
-            : "解約手続きが完了し、現在ダッシュボードはご利用いただけません。再度ご利用になる場合はお問い合わせください。"}
+            : isPaymentIssue
+              ? "ご登録のクレジットカードでの決済に失敗しました。まだ解約はされていませんが、このままだとご利用が停止されます。下記からお支払い方法をご確認ください。"
+              : "解約手続きが完了し、現在ダッシュボードはご利用いただけません。再度ご利用になる場合はお問い合わせください。"}
         </p>
+        {isPaymentIssue && (
+          <div style={{ marginTop: 20, textAlign: "left" }}>
+            <BillingPortalButton />
+          </div>
+        )}
         <div style={{ marginTop: 24 }}>
           <LogoutButton />
         </div>
