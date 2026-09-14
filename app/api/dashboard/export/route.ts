@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { listJobsForCompany } from "../../../../lib/jobsRepo";
 
 function csvField(value: string | number | null): string {
-  const text = value === null ? "" : String(value);
+  let text = value === null ? "" : String(value);
+  // お客様名・作業内容などはLINE経由の自由入力が元になるため、
+  // "="などで始まっているとExcel/スプレッドシートで数式として実行されてしまう
+  // (CSVインジェクション)。念のため無害化する。
+  if (/^[=+\-@]/.test(text)) {
+    text = `'${text}`;
+  }
   if (/[",\n]/.test(text)) {
     return `"${text.replace(/"/g, '""')}"`;
   }
@@ -39,6 +45,7 @@ const HEADER = [
   "完了日時",
   "見積金額",
   "請求金額",
+  "入金済み",
   "備考",
 ];
 
@@ -65,6 +72,7 @@ export async function GET(req: NextRequest) {
         csvField(formatJst(job.reportCompletedAt)),
         csvField(job.quoteAmount),
         csvField(job.invoiceAmount),
+        csvField(job.isPaid ? "済" : "未"),
         csvField(job.invoiceNote),
       ].join(",")
     );
