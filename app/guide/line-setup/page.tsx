@@ -1,7 +1,7 @@
 import CopyableCode from "./CopyableCode";
 
 const CALENDAR_SHARE_EMAIL = "jimuassi-calendar@gen-lang-client-0003463102.iam.gserviceaccount.com";
-const WEBHOOK_URL = "https://ai-jimuin-prototype-shimo1.vercel.app/api/webhook/line";
+const WEBHOOK_URL = "https://ai-jimuin-prototype.vercel.app/api/webhook/line";
 
 function Step({
   number,

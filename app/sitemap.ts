@@ -3,7 +3,7 @@ import { listBlogPosts } from "../lib/blog";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = "https://ai-jimuin-prototype-shimo1.vercel.app";
+const SITE_URL = "https://ai-jimuin-prototype.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = [

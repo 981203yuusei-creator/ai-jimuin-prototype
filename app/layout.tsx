@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 
-const SITE_URL = "https://ai-jimuin-prototype-shimo1.vercel.app";
+const SITE_URL = "https://ai-jimuin-prototype.vercel.app";
 const TITLE = "ジムアシ | 現場訪問サービス業の事務をAIとLINEで自動化";
 const DESCRIPTION =
   "現場に集中。事務はAIに。LINEでのお客様対応・AIによる自動入力・スケジュール管理・見積書/請求書作成・確定申告対応まで、工事・修理・点検・清掃などの小規模事業者向け事務アシスタントSaaS「ジムアシ」。月額9,800円。";
